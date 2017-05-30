@@ -1,5 +1,7 @@
-import spotinst
+#!/usr/bin/env python
+from os.path import expanduser
 
+import spotinst
 from ansible.module_utils.basic import AnsibleModule
 
 
@@ -442,6 +444,7 @@ def expand_scaling_policies(scaling_policies):
 
 
 def main():
+
     fields = dict(
         name=dict(type='str'), elastic_ips=dict(type='list'),
         on_demand_instance_typespot_instance_types=dict(type='list'), ebs_volume_pool=dict(type='list'),
@@ -463,12 +466,27 @@ def main():
         signals=dict(type='list'), up_scaling_policies=dict(type='list'), down_scaling_policies=dict(type='list')
     )
 
-    module = AnsibleModule(argument_spec={fields})
+    module = AnsibleModule(argument_spec=fields)
 
-    client = spotinst.SpotinstClient(authToken="")
+    creds = retrieve_creds()
+    token = creds["token"]
+    client = spotinst.SpotinstClient(authToken=token)
 
     create_autoscaling_group(client=client, module=module)
     module.exit_json(changed=False, meta=module.params)
+
+
+def retrieve_creds():
+    # Retrieve auth token
+    home = expanduser("~")
+    vars = dict()
+    with open(home + "/.spotinst/credentials", "r") as creds:
+        for line in creds:
+            eq_index = line.find('=')
+            var_name = line[:eq_index].strip()
+            string_value = line[eq_index + 1:].strip()
+            vars[var_name] = string_value
+    return vars
 
 
 if __name__ == '__main__':
