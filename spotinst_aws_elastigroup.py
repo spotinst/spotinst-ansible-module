@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python
 from os.path import expanduser
 
 import spotinst
@@ -18,7 +18,7 @@ def create_autoscaling_group(client, module):
         eg.description = description
 
     # Capacity
-    expand_capacity(module)
+    expand_capacity(eg, module)
 
     # Strategy
     expand_strategy(eg, module)
@@ -100,7 +100,7 @@ def expand_availability_zones(eg_compute, az_list):
 
 
 def expand_ebs_volume_pool(eg_compute, ebs_volumes_list):
-    if expand_ebs_volume_pool is not None:
+    if ebs_volumes_list is not None:
         eg_volumes = []
 
         for volume in ebs_volumes_list:
@@ -444,15 +444,15 @@ def expand_scaling_policies(scaling_policies):
 
 
 def main():
-
     fields = dict(
         name=dict(type='str'), elastic_ips=dict(type='list'),
-        on_demand_instance_typespot_instance_types=dict(type='list'), ebs_volume_pool=dict(type='list'),
+        on_demand_instance_type=dict(type='str'), spot_instance_types=dict(type='list'),
+        ebs_volume_pool=dict(type='list'),
         availability_zones=dict(type='list'), product=dict(type='str'), user_data=dict(type='str'),
         key_pair=dict(type='str'), i_am_role=dict(type='str'), tenancy=dict(type='str'),
         shut_down_script=dict(type='str'), monitoring=dict(type='str'), ebs_optimized=dict(type='bool'),
         image_id=dict(type='str'), health_check_type=dict(type='str'), health_check_grace_period=dict(type='int'),
-        security_group_ids=dict(type='str'), tags=dict(type='list'), load_balancers=dict(type='list'),
+        security_group_ids=dict(type='list'), tags=dict(type='list'), load_balancers=dict(type='list'),
         target_group_arns=dict(type='list'), block_device_mappings=dict(type='list'),
         network_interfaces=dict(type='list'), rancher=dict(required=False, default=None),
         mesosphere=dict(required=False, default=None), elastic_beanstalk=dict(required=False, default=None),
@@ -460,7 +460,8 @@ def main():
         rightscale=dict(required=False, default=None), opsworks=dict(required=False, default=None),
         chef=dict(required=False, default=None), max_size=dict(type='int'), min_size=dict(type='int'),
         target=dict(type='int'), unit=dict(type='str'), utilize_reserved_instances=dict(type='bool'),
-        fallback_to_ondemand=dict(type='bool'), on_demand_count=dict(type='int'), availability_vs_cost=dict(type='str'),
+        fallback_to_ondemand=dict(type='bool'), risk=dict(type='int'), on_demand_count=dict(type='int'),
+        availability_vs_cost=dict(type='str'),
         draining_timeout=dict(type='int'), spin_up_time=dict(type='int'), lifetime_period=dict(type='int'),
         terminate_at_end_of_billing_hour=dict(type='bool'), persistence=dict(required=False, default=None),
         signals=dict(type='list'), up_scaling_policies=dict(type='list'), down_scaling_policies=dict(type='list')
