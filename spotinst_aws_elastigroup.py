@@ -319,8 +319,8 @@ def expand_capacity(eg, module, is_update, ignore_changes):
 
     if target is not None:
         if is_update is True:
-            # if 'target' not in ignore_changes:
-            eg_capacity.target = target
+            if 'target' not in ignore_changes:
+                eg_capacity.target = target
         else:
             eg_capacity.target = target
 
