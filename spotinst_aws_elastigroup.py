@@ -6,7 +6,8 @@ import spotinst
 from ansible.module_utils.basic import AnsibleModule
 
 
-def handle_elastigroup_create_update_delete(client, module):
+def handle_elastigroup(client, module):
+    has_changed = False
     name = module.params.get('name')
     state = module.params.get('state')
 
@@ -21,25 +22,28 @@ def handle_elastigroup_create_update_delete(client, module):
         if state == 'present':
             group = client.update_elastigroup(group_update=eg, group_id=group_id)
             message = 'Updated group successfully.'
+            has_changed = True
+
         elif state == 'absent':
-            success = client.delete_elastigroup(group_id=group_id)
-            if success is True:
-                message = 'Deleted group successfully.'
-            else:
-                message = 'Failed in deleting group.'
+            client.delete_elastigroup(group_id=group_id)
+            message = 'Deleted group successfully.'
+            has_changed = True
+
     else:
         if state == 'present':
             eg = expand_elastigroup(module, is_update=False)
+
             group = client.create_elastigroup(group=eg)
-            if group['id'] is not None:
-                message = 'Created group Successfully.'
-            else:
-                message = 'Failed in creating group.'
+            group_id = group['id']
+            message = 'Created group Successfully.'
+            has_changed = True
+
         elif state == 'absent':
             message = 'Cannot delete non-existent group.'
+            has_changed = False
             pass
 
-    return group_id, message
+    return group_id, message, has_changed
 
 
 def find_group_with_same_name(groups, name):
@@ -315,8 +319,8 @@ def expand_capacity(eg, module, is_update, ignore_changes):
 
     if target is not None:
         if is_update is True:
-            if 'target' not in ignore_changes:
-                eg_capacity.target = target
+            # if 'target' not in ignore_changes:
+            eg_capacity.target = target
         else:
             eg_capacity.target = target
 
@@ -774,10 +778,9 @@ def main():
     token = creds["token"]
     client = spotinst.SpotinstClient(authToken=token, printOutput=False)
 
-    group_id, message = handle_elastigroup_create_update_delete(client=client, module=module)
+    group_id, message, has_changed = handle_elastigroup(client=client, module=module)
 
-    module.exit_json(changed=True, group_id=group_id, message=message,
-                     state=module.params.get('state'))
+    module.exit_json(changed=has_changed, group_id=group_id, message=message)
 
 
 def retrieve_creds():
