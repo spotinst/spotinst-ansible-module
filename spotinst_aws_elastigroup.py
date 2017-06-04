@@ -59,7 +59,7 @@ def find_group_with_same_name(groups, name):
 
 
 def expand_elastigroup(module, is_update):
-    ignore_changes = module.params['ignore_changes']
+    do_not_update = module.params['do_not_update']
     name = module.params.get('name')
 
     eg = spotinst.aws_elastigroup.Elastigroup()
@@ -71,7 +71,7 @@ def expand_elastigroup(module, is_update):
         eg.description = description
 
     # Capacity
-    expand_capacity(eg, module, is_update, ignore_changes)
+    expand_capacity(eg, module, is_update, do_not_update)
     # Strategy
     expand_strategy(eg, module)
     # Scaling
@@ -79,7 +79,7 @@ def expand_elastigroup(module, is_update):
     # Third party integrations
     expand_integrations(eg, module)
     # Compute
-    expand_compute(eg, module, is_update, ignore_changes)
+    expand_compute(eg, module, is_update, do_not_update)
 
     # Multai
     expand_multai(eg, module)
@@ -90,7 +90,7 @@ def expand_elastigroup(module, is_update):
     return eg
 
 
-def expand_compute(eg, module, is_update, ignore_changes):
+def expand_compute(eg, module, is_update, do_not_update):
     elastic_ips = module.params['elastic_ips']
     on_demand_instance_type = module.params.get('on_demand_instance_type')
     spot_instance_types = module.params['spot_instance_types']
@@ -123,7 +123,7 @@ def expand_compute(eg, module, is_update, ignore_changes):
 
     expand_availability_zones(eg_compute, availability_zones)
 
-    expand_launch_spec(eg_compute, module, is_update, ignore_changes)
+    expand_launch_spec(eg_compute, module, is_update, do_not_update)
 
     eg.compute = eg_compute
 
@@ -167,7 +167,7 @@ def expand_ebs_volume_pool(eg_compute, ebs_volumes_list):
             eg_compute.ebsVolumePool = eg_volumes
 
 
-def expand_launch_spec(eg_compute, module, is_update, ignore_changes):
+def expand_launch_spec(eg_compute, module, is_update, do_not_update):
     user_data = module.params.get('user_data')
     key_pair = module.params.get('key_pair')
     i_am_role = module.params.get('i_am_role')
@@ -216,7 +216,7 @@ def expand_launch_spec(eg_compute, module, is_update, ignore_changes):
 
     if image_id is not None:
         if is_update is True:
-            if 'image_id' not in ignore_changes:
+            if 'image_id' not in do_not_update:
                 eg_launch_spec.imageId = image_id
         else:
             eg_launch_spec.imageId = image_id
@@ -303,7 +303,7 @@ def expand_integrations(eg, module):
         eg.thirdPartiesIntegration = eg_integrations
 
 
-def expand_capacity(eg, module, is_update, ignore_changes):
+def expand_capacity(eg, module, is_update, do_not_update):
     min_size = module.params.get('min_size')
     max_size = module.params.get('max_size')
     target = module.params.get('target')
@@ -319,7 +319,7 @@ def expand_capacity(eg, module, is_update, ignore_changes):
 
     if target is not None:
         if is_update is True:
-            if 'target' not in ignore_changes:
+            if 'target' not in do_not_update:
                 eg_capacity.target = target
         else:
             eg_capacity.target = target
@@ -720,7 +720,7 @@ def expand_scaling_policies(scaling_policies):
 def main():
     fields = dict(
         state=dict(default='present', choices=['present', 'absent']),
-        ignore_changes=dict(default=[], type='list'),
+        do_not_update=dict(default=[], type='list'),
         name=dict(type='str'),
         elastic_ips=dict(type='list'),
         on_demand_instance_type=dict(type='str'),
