@@ -136,8 +136,8 @@ def expand_availability_zones(eg_compute, az_list):
             eg_az = spotinst.aws_elastigroup.AvailabilityZone()
             if az.get('name') is not None:
                 eg_az.name = az.get('name')
-            if az.get('subnetId') is not None:
-                eg_az.subnetId = az.get('subnetId')
+            if az.get('subnet_id') is not None:
+                eg_az.subnetId = az.get('subnet_id')
             if az.get('placement_group_name') is not None:
                 eg_az.placementGroupName = az.get('placement_group_name')
 
@@ -155,10 +155,10 @@ def expand_ebs_volume_pool(eg_compute, ebs_volumes_list):
         for volume in ebs_volumes_list:
             eg_volume = spotinst.aws_elastigroup.EbsVolume()
 
-            if volume.get('deviceName') is not None:
-                eg_volume.deviceName = volume.get('deviceName')
-            if volume.get('volumeIds') is not None:
-                eg_volume.volumeIds = volume.get('volumeIds')
+            if volume.get('device_name') is not None:
+                eg_volume.deviceName = volume.get('device_name')
+            if volume.get('volume_ids') is not None:
+                eg_volume.volumeIds = volume.get('volume_ids')
 
             if eg_volume.deviceName is not None:
                 eg_volumes.append(eg_volume)
@@ -418,6 +418,9 @@ def expand_scheduled_tasks(eg, module):
             if task.get('grace_period') is not None:
                 eg_task.gracePeriod = task.get('grace_period')
 
+            if task.get('task_type') is not None:
+                eg_task.taskType = task.get('task_type')
+
             if task.get('is_enabled') is not None:
                 eg_task.isEnabled = task.get('is_enabled')
 
@@ -653,14 +656,14 @@ def expand_scaling_policies(scaling_policies):
     for policy in scaling_policies:
         eg_policy = spotinst.aws_elastigroup.ScalingPolicy()
 
-        if policy.get('policyName') is not None:
-            eg_policy.policyName = policy.get('policyName')
+        if policy.get('policy_name') is not None:
+            eg_policy.policyName = policy.get('policy_name')
 
         if policy.get('namespace') is not None:
             eg_policy.namespace = policy.get('namespace')
 
-        if policy.get('metricName') is not None:
-            eg_policy.metricName = policy.get('metricName')
+        if policy.get('metric_name') is not None:
+            eg_policy.metricName = policy.get('metric_name')
 
         if policy.get('dimensions') is not None:
             eg_policy.dimensions = policy.get('dimensions')
@@ -668,8 +671,8 @@ def expand_scaling_policies(scaling_policies):
         if policy.get('statistic') is not None:
             eg_policy.statistic = policy.get('statistic')
 
-        if policy.get('evaluationPeriods') is not None:
-            eg_policy.evaluationPeriods = policy.get('evaluationPeriods')
+        if policy.get('evaluation_periods') is not None:
+            eg_policy.evaluationPeriods = policy.get('evaluation_periods')
 
         if policy.get('period') is not None:
             eg_policy.period = policy.get('period')
@@ -708,9 +711,6 @@ def expand_scaling_policies(scaling_policies):
 
         if policy.get('operator') is not None:
             eg_policy.operator = policy.get('operator')
-
-        if policy.get('threshold') is not None:
-            eg_policy.threshold = policy.get('threshold')
 
         eg_scaling_policies.append(eg_policy)
 
@@ -768,6 +768,8 @@ def main():
         terminate_at_end_of_billing_hour=dict(type='bool'),
         persistence=dict(required=False, default=None),
         signals=dict(type='list'),
+        multai_load_balancers=dict(type='list'),
+        multai_token=dict(type='str'),
         up_scaling_policies=dict(type='list'),
         down_scaling_policies=dict(type='list')
     )
