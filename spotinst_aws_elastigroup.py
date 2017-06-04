@@ -117,7 +117,7 @@ def expand_compute(eg, module, is_update, do_not_update):
             eg_instance_types.ondemand = on_demand_instance_type
 
         if eg_instance_types.spot is not None or eg_instance_types.ondemand is not None:
-            eg_compute.instanceTypes = eg_instance_types
+            eg_compute.instance_types = eg_instance_types
 
     expand_ebs_volume_pool(eg_compute, ebs_volume_pool)
 
@@ -137,15 +137,15 @@ def expand_availability_zones(eg_compute, az_list):
             if az.get('name') is not None:
                 eg_az.name = az.get('name')
             if az.get('subnet_id') is not None:
-                eg_az.subnetId = az.get('subnet_id')
+                eg_az.subnet_id = az.get('subnet_id')
             if az.get('placement_group_name') is not None:
-                eg_az.placementGroupName = az.get('placement_group_name')
+                eg_az.placement_group_name = az.get('placement_group_name')
 
             if eg_az.name is not None:
                 eg_azs.append(eg_az)
 
         if eg_azs.__sizeof__() > 0:
-            eg_compute.availabilityZones = eg_azs
+            eg_compute.availability_zones = eg_azs
 
 
 def expand_ebs_volume_pool(eg_compute, ebs_volumes_list):
@@ -156,15 +156,15 @@ def expand_ebs_volume_pool(eg_compute, ebs_volumes_list):
             eg_volume = spotinst.aws_elastigroup.EbsVolume()
 
             if volume.get('device_name') is not None:
-                eg_volume.deviceName = volume.get('device_name')
+                eg_volume.device_name = volume.get('device_name')
             if volume.get('volume_ids') is not None:
-                eg_volume.volumeIds = volume.get('volume_ids')
+                eg_volume.volume_ids = volume.get('volume_ids')
 
             if eg_volume.deviceName is not None:
                 eg_volumes.append(eg_volume)
 
         if eg_volumes.__sizeof__() > 0:
-            eg_compute.ebsVolumePool = eg_volumes
+            eg_compute.ebs_volume_pool = eg_volumes
 
 
 def expand_launch_spec(eg_compute, module, is_update, do_not_update):
@@ -172,7 +172,7 @@ def expand_launch_spec(eg_compute, module, is_update, do_not_update):
     key_pair = module.params.get('key_pair')
     i_am_role = module.params.get('i_am_role')
     tenancy = module.params.get('tenancy')
-    shut_down_script = module.params.get('shut_down_script')
+    shutdown_script = module.params.get('shutdown_script')
     monitoring = module.params.get('monitoring')
     ebs_optimized = module.params.get('ebs_optimized')
     image_id = module.params.get('image_id')
@@ -191,47 +191,47 @@ def expand_launch_spec(eg_compute, module, is_update, do_not_update):
     eg_launch_spec = spotinst.aws_elastigroup.LaunchSpecification()
 
     if user_data is not None:
-        eg_launch_spec.userData = user_data
+        eg_launch_spec.user_data = user_data
 
     if monitoring is not None:
         eg_launch_spec.monitoring = monitoring
 
     if ebs_optimized is not None:
-        eg_launch_spec.ebsOptimized = ebs_optimized
+        eg_launch_spec.ebs_optimized = ebs_optimized
 
     if tenancy is not None:
         eg_launch_spec.tenancy = tenancy
 
-    if shut_down_script is not None:
-        eg_launch_spec.shutdownScript = shut_down_script
+    if shutdown_script is not None:
+        eg_launch_spec.shutdown_script = shutdown_script
 
     if ebs_optimized is not None:
-        eg_launch_spec.ebsOptimized = ebs_optimized
+        eg_launch_spec.ebs_optimized = ebs_optimized
 
     if i_am_role is not None:
-        eg_launch_spec.iamRole = i_am_role
+        eg_launch_spec.i_am_role = i_am_role
 
     if key_pair is not None:
-        eg_launch_spec.keyPair = key_pair
+        eg_launch_spec.key_pair = key_pair
 
     if image_id is not None:
         if is_update is True:
             if 'image_id' not in do_not_update:
-                eg_launch_spec.imageId = image_id
+                eg_launch_spec.image_id = image_id
         else:
-            eg_launch_spec.imageId = image_id
+            eg_launch_spec.image_id = image_id
 
     if health_check_type is not None:
-        eg_launch_spec.healthCheckType = health_check_type
+        eg_launch_spec.health_check_type = health_check_type
 
     if health_check_grace_period is not None:
-        eg_launch_spec.healthCheckGracePeriod = health_check_grace_period
+        eg_launch_spec.health_check_grace_period = health_check_grace_period
 
     if health_check_unhealthy_duration_before_replacement is not None:
-        eg_launch_spec.healthCheckUnhealthyDurationBeforeReplacement = health_check_unhealthy_duration_before_replacement
+        eg_launch_spec.health_check_unhealthy_duration_before_replacement = health_check_unhealthy_duration_before_replacement
 
     if security_group_ids is not None:
-        eg_launch_spec.securityGroupIds = security_group_ids
+        eg_launch_spec.security_group_ids = security_group_ids
 
     expand_tags(eg_launch_spec, tags)
 
@@ -243,7 +243,7 @@ def expand_launch_spec(eg_compute, module, is_update, do_not_update):
 
     expand_network_interfaces(eg_launch_spec, network_interfaces)
 
-    eg_compute.launchSpecification = eg_launch_spec
+    eg_compute.launch_specification = eg_launch_spec
 
 
 def expand_integrations(eg, module):
@@ -257,50 +257,50 @@ def expand_integrations(eg, module):
     chef = module.params.get('chef')
     eg_integrations = spotinst.aws_elastigroup.ThirdPartyIntegrations()
     if rancher:
-        eg_rancher = spotinst.aws_elastigroup.Rancher(accessKey=rancher.get('access_key'),
-                                                      secretKey=rancher.get('secret_key'),
-                                                      masterHost=rancher.get('master_host'))
+        eg_rancher = spotinst.aws_elastigroup.Rancher(access_key=rancher.get('access_key'),
+                                                      secret_key=rancher.get('secret_key'),
+                                                      master_host=rancher.get('master_host'))
         eg_integrations.rancher = eg_rancher
 
     if chef:
-        eg_chef = spotinst.aws_elastigroup.ChefConfiguration(chefServer=chef.get('chef_server'),
+        eg_chef = spotinst.aws_elastigroup.ChefConfiguration(chef_server=chef.get('chef_server'),
                                                              organization=chef.get('organization'),
                                                              user=chef.get('user'),
-                                                             pemKey=chef.get('pem_key'),
-                                                             chefVersion=chef.get('chef_version'))
+                                                             pem_key=chef.get('pem_key'),
+                                                             chef_version=chef.get('chef_version'))
         eg_integrations.chef = eg_chef
 
     if mesosphere:
-        eg_mesosphere = spotinst.aws_elastigroup.Mesosphere(apiServer=mesosphere.get('api_server'))
+        eg_mesosphere = spotinst.aws_elastigroup.Mesosphere(api_server=mesosphere.get('api_server'))
         eg_integrations.mesosphere = eg_mesosphere
 
     if ecs:
-        eg_ecs = spotinst.aws_elastigroup.EcsConfiguration(clusterName=ecs.get('cluster_name'))
+        eg_ecs = spotinst.aws_elastigroup.EcsConfiguration(cluster_name=ecs.get('cluster_name'))
         eg_integrations.ecs = eg_ecs
 
     if kubernetes:
-        eg_kube = spotinst.aws_elastigroup.KubernetesConfiguration(apiServer=kubernetes.get('api_server'),
+        eg_kube = spotinst.aws_elastigroup.KubernetesConfiguration(api_server=kubernetes.get('api_server'),
                                                                    token=kubernetes.get('token'))
         eg_integrations.kubernetes = eg_kube
 
     if rightscale:
-        eg_rightscale = spotinst.aws_elastigroup.RightScaleConfiguration(accountId=rightscale.get('account_id'),
-                                                                         refreshToken=rightscale.get('refresh_token'))
-        eg_integrations.rightScale = eg_rightscale
+        eg_rightscale = spotinst.aws_elastigroup.RightScaleConfiguration(account_id=rightscale.get('account_id'),
+                                                                         refresh_token=rightscale.get('refresh_token'))
+        eg_integrations.right_scale = eg_rightscale
 
     if opsworks:
-        eg_opsworks = spotinst.aws_elastigroup.OpsWorksConfiguration(layerId=opsworks.get('layer_id'))
-        eg_integrations.opsWorks = eg_opsworks
+        eg_opsworks = spotinst.aws_elastigroup.OpsWorksConfiguration(layer_id=opsworks.get('layer_id'))
+        eg_integrations.ops_works = eg_opsworks
 
     if eg_integrations.rancher is not None \
             or eg_integrations.rightScale is not None \
-            or eg_integrations.opsWorks is not None \
+            or eg_integrations.ops_works is not None \
             or eg_integrations.chef is not None \
             or eg_integrations.ecs is not None \
-            or eg_integrations.elasticBeanstalk is not None \
+            or eg_integrations.elastic_beanstalk is not None \
             or eg_integrations.mesosphere is not None \
             or eg_integrations.kubernetes is not None:
-        eg.thirdPartiesIntegration = eg_integrations
+        eg.third_parties_integration = eg_integrations
 
 
 def expand_capacity(eg, module, is_update, do_not_update):
@@ -350,23 +350,23 @@ def expand_strategy(eg, module):
     if risk is not None:
         eg_strategy.risk = risk
     if utilize_reserved_instances is not None:
-        eg_strategy.utilizeReservedInstances = utilize_reserved_instances
+        eg_strategy.utilize_reserved_instances = utilize_reserved_instances
     if fallback_to_ondemand is not None:
-        eg_strategy.fallbackToOd = fallback_to_ondemand
+        eg_strategy.fallback_to_ondemand = fallback_to_ondemand
     if on_demand_count is not None:
-        eg_strategy.onDemandCount = on_demand_count
+        eg_strategy.on_demand_count = on_demand_count
     if availability_vs_cost is not None:
-        eg_strategy.availabilityVsCost = availability_vs_cost
+        eg_strategy.availability_vs_cost = availability_vs_cost
     if draining_timeout is not None:
-        eg_strategy.drainingTimeout = draining_timeout
+        eg_strategy.draining_timeout = draining_timeout
     if spin_up_time is not None:
-        eg_strategy.spinUpTime = spin_up_time
+        eg_strategy.spin_up_time = spin_up_time
     if lifetime_period is not None:
-        eg_strategy.lifetimePeriod = lifetime_period
+        eg_strategy.lifetime_period = lifetime_period
     if terminate_at_end_of_billing_hour is not None:
         eg_scaling_strategy = spotinst.aws_elastigroup.ScalingStrategy()
-        eg_scaling_strategy.terminateAtEndOfBillingHour = terminate_at_end_of_billing_hour
-        eg_strategy.scalingStrategy = eg_scaling_strategy
+        eg_scaling_strategy.terminate_at_end_of_billing_hour = terminate_at_end_of_billing_hour
+        eg_strategy.eg_scaling_strategy = eg_scaling_strategy
 
     expand_persistence(eg_strategy, persistence)
 
@@ -382,7 +382,7 @@ def expand_multai(eg, module):
     eg_multai = spotinst.aws_elastigroup.Multai()
 
     if multai_token is not None:
-        eg_multai.multaiToken = multai_token
+        eg_multai.multai_token = multai_token
 
     expand_multai_load_balancers(eg_multai, multai_load_balancers)
 
@@ -404,25 +404,25 @@ def expand_scheduled_tasks(eg, module):
                 eg_task.adjustment = task.get('adjustment')
 
             if task.get('adjustment_percentage') is not None:
-                eg_task.adjustmentPercentage = task.get('adjustment_percentage')
+                eg_task.adjustment_percentage = task.get('adjustment_percentage')
 
             if task.get('batch_size_percentage') is not None:
-                eg_task.batchSizePercentage = task.get('batch_size_percentage')
+                eg_task.batch_size_percentage = task.get('batch_size_percentage')
 
             if task.get('cron_expression') is not None:
-                eg_task.cronExpression = task.get('cron_expression')
+                eg_task.cron_expression = task.get('cron_expression')
 
             if task.get('frequency') is not None:
                 eg_task.frequency = task.get('frequency')
 
             if task.get('grace_period') is not None:
-                eg_task.gracePeriod = task.get('grace_period')
+                eg_task.grace_period = task.get('grace_period')
 
             if task.get('task_type') is not None:
-                eg_task.taskType = task.get('task_type')
+                eg_task.task_type = task.get('task_type')
 
             if task.get('is_enabled') is not None:
-                eg_task.isEnabled = task.get('is_enabled')
+                eg_task.is_enabled = task.get('is_enabled')
 
             eg_tasks.append(eg_task)
 
@@ -456,11 +456,15 @@ def expand_multai_load_balancers(eg_multai, multai_load_balancers):
         for multai_load_balancer in multai_load_balancers:
             eg_multai_load_balancer = spotinst.aws_elastigroup.MultaiLoadBalancer()
             if multai_load_balancer.get('balancer_id') is not None:
-                eg_multai_load_balancer.balancerId = multai_load_balancer.get('balancer_id')
-            if multai_load_balancer.get('balancer_id') is not None:
-                eg_multai_load_balancer.balancerId = multai_load_balancer.get('balancer_id')
-            if multai_load_balancer.get('balancer_id') is not None:
-                eg_multai_load_balancer.balancerId = multai_load_balancer.get('balancer_id')
+                eg_multai_load_balancer.balancer_id = multai_load_balancer.get('balancer_id')
+            if multai_load_balancer.get('project_id') is not None:
+                eg_multai_load_balancer.project_id = multai_load_balancer.get('project_id')
+            if multai_load_balancer.get('target_set_id') is not None:
+                eg_multai_load_balancer.target_set_id = multai_load_balancer.get('target_set_id')
+            if multai_load_balancer.get('az_awareness') is not None:
+                eg_multai_load_balancer.az_awareness = multai_load_balancer.get('az_awareness')
+            if multai_load_balancer.get('auto_weight') is not None:
+                eg_multai_load_balancer.auto_weight = multai_load_balancer.get('auto_weight')
 
             if eg_multai_load_balancer.balancerId is not None:
                 eg_multai_load_balancers.append(eg_multai_load_balancer)
@@ -491,8 +495,8 @@ def expand_load_balancers(eg_launchspec, load_balancers, target_group_arns):
                     eg_total_lbs.append(eg_elb)
 
         if eg_total_lbs.__sizeof__() > 0:
-            eg_load_balancers_config.loadBalancers = eg_total_lbs
-            eg_launchspec.loadBalancersConfig = eg_load_balancers_config
+            eg_load_balancers_config.load_balancers = eg_total_lbs
+            eg_launchspec.load_balancers_config = eg_load_balancers_config
 
 
 def expand_tags(eg_launchspec, tags):
@@ -502,9 +506,9 @@ def expand_tags(eg_launchspec, tags):
         for tag in tags:
             eg_tag = spotinst.aws_elastigroup.Tag()
             if tag.get('key') is not None:
-                eg_tag.tagKey = tag.get('key')
+                eg_tag.tag_key = tag.get('key')
             if tag.get('value') is not None:
-                eg_tag.tagValue = tag.get('value')
+                eg_tag.tag_value = tag.get('value')
 
             eg_tags.append(eg_tag)
 
@@ -519,13 +523,13 @@ def expand_block_device_mappings(eg_launchspec, bdms):
         for bdm in bdms:
             eg_bdm = spotinst.aws_elastigroup.BlockDeviceMapping()
             if bdm.get('device_name') is not None:
-                eg_bdm.deviceName = bdm.get('device_name')
+                eg_bdm.device_name = bdm.get('device_name')
 
             if bdm.get('virtual_name') is not None:
-                eg_bdm.virtualName = bdm.get('virtual_name')
+                eg_bdm.virtual_name = bdm.get('virtual_name')
 
             if bdm.get('no_device') is not None:
-                eg_bdm.noDevice = bdm.get('no_device')
+                eg_bdm.no_device = bdm.get('no_device')
 
             if bdm.get('ebs') is not None:
                 eg_ebs = spotinst.aws_elastigroup.EBS()
@@ -533,7 +537,7 @@ def expand_block_device_mappings(eg_launchspec, bdms):
                 ebs = bdm.get('ebs')
 
                 if ebs.get('delete_on_termination') is not None:
-                    eg_ebs.deleteOnTermination = ebs.get('delete_on_termination')
+                    eg_ebs.delete_on_termination = ebs.get('delete_on_termination')
 
                 if ebs.get('encrypted') is not None:
                     eg_ebs.encrypted = ebs.get('encrypted')
@@ -542,20 +546,20 @@ def expand_block_device_mappings(eg_launchspec, bdms):
                     eg_ebs.iops = ebs.get('iops')
 
                 if ebs.get('snapshot_id') is not None:
-                    eg_ebs.snapshotId = ebs.get('snapshot_id')
+                    eg_ebs.snapshot_id = ebs.get('snapshot_id')
 
                 if ebs.get('volume_type') is not None:
-                    eg_ebs.volumeType = ebs.get('volume_type')
+                    eg_ebs.volume_type = ebs.get('volume_type')
 
                 if ebs.get('volume_size') is not None:
-                    eg_ebs.volumeSize = ebs.get('volume_size')
+                    eg_ebs.volume_size = ebs.get('volume_size')
 
                 eg_bdm.ebs = eg_ebs
 
             eg_bdms.append(eg_bdm)
 
         if eg_bdms.__sizeof__() > 0:
-            eg_launchspec.blockDeviceMappings = eg_bdms
+            eg_launchspec.bl = eg_bdms
 
 
 def expand_network_interfaces(eg_launchspec, enis):
@@ -569,38 +573,38 @@ def expand_network_interfaces(eg_launchspec, enis):
                 eg_eni.description = eni.get('description')
 
             if eni.get('device_index') is not None:
-                eg_eni.deviceIndex = eni.get('device_index')
+                eg_eni.device_index = eni.get('device_index')
 
             if eni.get('secondary_private_ip_address_count') is not None:
-                eg_eni.secondaryPrivateIpAddressCount = eni.get('secondary_private_ip_address_count')
+                eg_eni.secondary_private_ip_address_count = eni.get('secondary_private_ip_address_count')
 
             if eni.get('associate_public_ip_address') is not None:
-                eg_eni.associatePublicIpAddress = eni.get('associate_public_ip_address')
+                eg_eni.associate_public_ip_address = eni.get('associate_public_ip_address')
 
             if eni.get('delete_on_termination') is not None:
-                eg_eni.deleteOnTermination = eni.get('delete_on_termination')
+                eg_eni.delete_on_termination = eni.get('delete_on_termination')
 
             if eni.get('groups') is not None:
                 eg_eni.groups = eni['groups']
 
             if eni.get('network_interface_id') is not None:
-                eg_eni.networkInterfaceId = eni.get('network_interface_id')
+                eg_eni.network_interface_id = eni.get('network_interface_id')
 
             if eni.get('private_ip_address') is not None:
-                eg_eni.privateIpAddress = eni.get('private_ip_address')
+                eg_eni.private_ip_address = eni.get('private_ip_address')
 
             if eni.get('subnet_id') is not None:
-                eg_eni.subnetId = eni.get('subnet_id')
+                eg_eni.subnet_id = eni.get('subnet_id')
 
             if eni.get('associate_ipv6_address') is not None:
-                eg_eni.associateIpv6Address = eni.get('associate_ipv6_address')
+                eg_eni.associate_ipv6_address = eni.get('associate_ipv6_address')
 
             expand_private_ip_addresses(eg_eni, eni)
 
             eg_enis.append(eg_eni)
 
         if eg_enis.__sizeof__() > 0:
-            eg_launchspec.Net = eg_enis
+            eg_launchspec.network_interfaces = eg_enis
 
 
 def expand_private_ip_addresses(eg_eni, eni):
@@ -613,20 +617,20 @@ def expand_private_ip_addresses(eg_eni, eni):
 
             eg_pia_address = pia.get('private_ip_address')
             eg_pia_primary = pia.get('primary')
-            eg_pia.privateIpAddress = eg_pia_address
+            eg_pia.private_ip_address = eg_pia_address
             eg_pia.primary = eg_pia_primary
 
             eg_pias.append(eg_pia)
 
-        eg_eni.privateIpAddresses = eg_pias
+        eg_eni.private_ip_addresses = eg_pias
 
 
 def expand_persistence(eg_strategy, persistence):
     if persistence is not None:
         eg_persistence = spotinst.aws_elastigroup.Persistence()
-        eg_persistence.shouldPersistRootDevice = persistence.get('should_persist_root_device')
-        eg_persistence.shouldPersistBlockDevices = persistence.get('should_persist_block_devices')
-        eg_persistence.shouldPersistPrivateIp = persistence.get('should_persist_private_ip')
+        eg_persistence.should_persist_root_device = persistence.get('should_persist_root_device')
+        eg_persistence.should_persist_block_devices = persistence.get('should_persist_block_devices')
+        eg_persistence.should_persist_private_ip = persistence.get('should_persist_private_ip')
         eg_strategy.persistence = eg_persistence
 
 
@@ -657,13 +661,13 @@ def expand_scaling_policies(scaling_policies):
         eg_policy = spotinst.aws_elastigroup.ScalingPolicy()
 
         if policy.get('policy_name') is not None:
-            eg_policy.policyName = policy.get('policy_name')
+            eg_policy.policy_name = policy.get('policy_name')
 
         if policy.get('namespace') is not None:
             eg_policy.namespace = policy.get('namespace')
 
         if policy.get('metric_name') is not None:
-            eg_policy.metricName = policy.get('metric_name')
+            eg_policy.metric_name = policy.get('metric_name')
 
         if policy.get('dimensions') is not None:
             eg_policy.dimensions = policy.get('dimensions')
@@ -672,7 +676,7 @@ def expand_scaling_policies(scaling_policies):
             eg_policy.statistic = policy.get('statistic')
 
         if policy.get('evaluation_periods') is not None:
-            eg_policy.evaluationPeriods = policy.get('evaluation_periods')
+            eg_policy.evaluation_periods = policy.get('evaluation_periods')
 
         if policy.get('period') is not None:
             eg_policy.period = policy.get('period')
@@ -692,10 +696,10 @@ def expand_scaling_policies(scaling_policies):
             eg_scaling_action.adjustment = policy.get('adjustment')
 
         if policy.get('min_target_capacity') is not None:
-            eg_scaling_action.minTargetCapacity = policy.get('min_target_capacity')
+            eg_scaling_action.min_target_capacity = policy.get('min_target_capacity')
 
         if policy.get('max_target_capacity') is not None:
-            eg_scaling_action.maxTargetCapacity = policy.get('max_target_capacity')
+            eg_scaling_action.max_target_capacity = policy.get('max_target_capacity')
 
         if policy.get('target') is not None:
             eg_scaling_action.target = policy.get('target')
@@ -732,7 +736,7 @@ def main():
         key_pair=dict(type='str'),
         i_am_role=dict(type='str'),
         tenancy=dict(type='str'),
-        shut_down_script=dict(type='str'),
+        shutdown_script=dict(type='str'),
         monitoring=dict(type='str'),
         ebs_optimized=dict(type='bool'),
         image_id=dict(type='str'),
@@ -778,7 +782,7 @@ def main():
 
     creds = retrieve_creds()
     token = creds["token"]
-    client = spotinst.SpotinstClient(authToken=token, printOutput=False)
+    client = spotinst.SpotinstClient(auth_token=token, print_output=False)
 
     group_id, message, has_changed = handle_elastigroup(client=client, module=module)
 
