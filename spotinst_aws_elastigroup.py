@@ -1093,6 +1093,7 @@ def main():
         signals=dict(type='list'),
         multai_load_balancers=dict(type='list'),
         multai_token=dict(type='str'),
+        account_id=dict(type='str'),
         up_scaling_policies=dict(type='list'),
         down_scaling_policies=dict(type='list')
     )
@@ -1101,7 +1102,12 @@ def main():
 
     creds = retrieve_creds()
     token = creds["token"]
-    client = spotinst.SpotinstClient(auth_token=token, print_output=False)
+
+    eg_account_id = module.params.get('account_id')
+    if eg_account_id is not None:
+        client = spotinst.SpotinstClient(auth_token=token, print_output=False, account_id=eg_account_id)
+    else:
+        client = spotinst.SpotinstClient(auth_token=token, print_output=False)
 
     group_id, message, has_changed = handle_elastigroup(client=client, module=module)
 
