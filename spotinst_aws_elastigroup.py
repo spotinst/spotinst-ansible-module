@@ -91,9 +91,15 @@ health_check_type:
   description:
     - "he service to use for the health check."
   required: false
-iam_role:
+iam_role_name:
   description:
-    - "The instance profile iamRole"
+    - "The instance profile iamRole name"
+    - "Only use iam_role_arn, or iam_role_name"
+  required: false
+iam_role_arn:
+  description:
+    - "The instance profile iamRole arn"
+    - "Only use iam_role_arn, or iam_role_name"
   required: false
 ignore_changes:
   choices:
@@ -489,7 +495,8 @@ def expand_ebs_volume_pool(eg_compute, ebs_volumes_list):
 def expand_launch_spec(eg_compute, module, is_update, do_not_update):
     user_data = module.params.get('user_data')
     key_pair = module.params.get('key_pair')
-    iam_role = module.params.get('iam_role')
+    iam_role_name = module.params.get('iam_role_name')
+    iam_role_arn = module.params.get('iam_role_arn')
     tenancy = module.params.get('tenancy')
     shutdown_script = module.params.get('shutdown_script')
     monitoring = module.params.get('monitoring')
@@ -527,8 +534,16 @@ def expand_launch_spec(eg_compute, module, is_update, do_not_update):
     if ebs_optimized is not None:
         eg_launch_spec.ebs_optimized = ebs_optimized
 
-    if iam_role is not None:
-        eg_launch_spec.iam_role = iam_role
+    if iam_role_name or iam_role_arn is not None:
+        eg_iam_role = spotinst.aws_elastigroup.IamRole()
+
+        if iam_role_name is not None:
+            eg_iam_role.name = iam_role_name
+        elif iam_role_arn is not None:
+            eg_iam_role.arn = iam_role_arn
+
+        if eg_iam_role.name is not None or eg_iam_role.arn is not None:
+            eg_launch_spec.iam_role = eg_iam_role
 
     if key_pair is not None:
         eg_launch_spec.key_pair = key_pair
@@ -1053,7 +1068,8 @@ def main():
         product=dict(type='str'),
         user_data=dict(type='str'),
         key_pair=dict(type='str'),
-        iam_role=dict(type='str'),
+        iam_role_name=dict(type='str'),
+        iam_role_arn=dict(type='str'),
         tenancy=dict(type='str'),
         shutdown_script=dict(type='str'),
         monitoring=dict(type='str'),
