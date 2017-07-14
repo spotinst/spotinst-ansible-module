@@ -91,7 +91,7 @@ health_check_type:
   description:
     - "he service to use for the health check."
   required: false
-i_am_role:
+iam_role:
   description:
     - "The instance profile iamRole"
   required: false
@@ -489,7 +489,7 @@ def expand_ebs_volume_pool(eg_compute, ebs_volumes_list):
 def expand_launch_spec(eg_compute, module, is_update, do_not_update):
     user_data = module.params.get('user_data')
     key_pair = module.params.get('key_pair')
-    i_am_role = module.params.get('i_am_role')
+    iam_role = module.params.get('iam_role')
     tenancy = module.params.get('tenancy')
     shutdown_script = module.params.get('shutdown_script')
     monitoring = module.params.get('monitoring')
@@ -527,8 +527,8 @@ def expand_launch_spec(eg_compute, module, is_update, do_not_update):
     if ebs_optimized is not None:
         eg_launch_spec.ebs_optimized = ebs_optimized
 
-    if i_am_role is not None:
-        eg_launch_spec.i_am_role = i_am_role
+    if iam_role is not None:
+        eg_launch_spec.iam_role = iam_role
 
     if key_pair is not None:
         eg_launch_spec.key_pair = key_pair
@@ -1053,7 +1053,7 @@ def main():
         product=dict(type='str'),
         user_data=dict(type='str'),
         key_pair=dict(type='str'),
-        i_am_role=dict(type='str'),
+        iam_role=dict(type='str'),
         tenancy=dict(type='str'),
         shutdown_script=dict(type='str'),
         monitoring=dict(type='str'),
