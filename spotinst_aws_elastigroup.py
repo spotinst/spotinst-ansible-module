@@ -296,7 +296,7 @@ EXAMPLES = '''
           availability_vs_cost: balanced
           availability_zones:
             - name: us-west-2a
-              subnetId: subnet-2b68a15c
+              subnet_id: subnet-2b68a15c
           image_id: ami-f173cc91
           key_pair: spotinst-oregon
           max_size: 15
