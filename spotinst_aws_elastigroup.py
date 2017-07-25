@@ -1175,7 +1175,7 @@ def expand_block_device_mappings(eg_launchspec, bdms):
             eg_bdms.append(eg_bdm)
 
         if eg_bdms.__sizeof__() > 0:
-            eg_launchspec.bl = eg_bdms
+            eg_launchspec.block_device_mappings = eg_bdms
 
 
 def expand_network_interfaces(eg_launchspec, enis):
