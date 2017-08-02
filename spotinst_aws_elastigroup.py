@@ -592,12 +592,11 @@ HAS_SPOTINST_SDK = False
 import os
 import time
 from os.path import expanduser
-
 from ansible.module_utils.basic import AnsibleModule
 
 try:
     import spotinst
-
+    from spotinst import SpotinstClientException
     HAS_SPOTINST_SDK = True
 
 except ImportError:
@@ -615,7 +614,7 @@ def handle_elastigroup(client, module):
     uniqueness_by = module.params.get('uniqueness_by')
     external_group_id = module.params.get('id')
 
-    if uniqueness_by is 'id':
+    if uniqueness_by == 'id':
         if external_group_id is None:
             should_create = True
         else:
@@ -654,14 +653,12 @@ def handle_elastigroup(client, module):
                     eg_roll = spotinst.aws_elastigroup.Roll(
                         batch_size_percentage=roll_config.get('batch_size_percentage'),
                         grace_period=roll_config.get('grace_period'),
-                        health_check_type=roll_config.get('health_check_type'),
-                        strategy=roll_config.get('strategy'),
+                        health_check_type=roll_config.get('health_check_type')
                     )
                     roll_response = client.roll_group(group_roll=eg_roll, group_id=group_id)
                     message = 'Updated and started rolling the group successfully.'
-            except:
-                message = 'Updated group successfully, but failed to perform roll.'
-
+            except SpotinstClientException as exc:
+                message = 'Updated group successfully, but failed to perform roll. Error:' + str(exc)
             has_changed = True
 
         elif state == 'absent':
