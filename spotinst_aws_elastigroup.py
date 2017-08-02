@@ -304,6 +304,17 @@ options:
       - (Integer) required if on demand is not set. The percentage of Spot instances to launch (0 - 100).
     required: false
 
+  roll_config:
+    description:
+      - (Object) Roll configuration.;
+        If you would like the group to roll after updating, please use this feature.
+        Accepts the following keys -
+        batch_size_percentage(Integer, Required),
+        grace_period - (Integer, Required),
+        health_check_type(String, Optional),
+        strategy (String, Optional)
+    required: false
+
   scheduled_tasks:
     description:
       - (List of Objects) a list of hash/dictionaries of scheduled tasks to configure in the elastigroup;
@@ -636,6 +647,21 @@ def handle_elastigroup(client, module):
         if state == 'present':
             group = client.update_elastigroup(group_update=eg, group_id=group_id)
             message = 'Updated group successfully.'
+
+            try:
+                roll_config = module.params.get('roll_config')
+                if roll_config:
+                    eg_roll = spotinst.aws_elastigroup.Roll(
+                        batch_size_percentage=roll_config.get('batch_size_percentage'),
+                        grace_period=roll_config.get('grace_period'),
+                        health_check_type=roll_config.get('health_check_type'),
+                        strategy=roll_config.get('strategy'),
+                    )
+                    roll_response = client.roll_group(group_roll=eg_roll, group_id=group_id)
+                    message = 'Updated and started rolling the group successfully.'
+            except:
+                message = 'Updated group successfully, but failed to perform roll.'
+
             has_changed = True
 
         elif state == 'absent':
@@ -712,10 +738,8 @@ def expand_elastigroup(module, is_update):
     expand_integrations(eg, module)
     # Compute
     expand_compute(eg, module, is_update, do_not_update)
-
     # Multai
     expand_multai(eg, module)
-
     # Scheduling
     expand_scheduled_tasks(eg, module)
 
@@ -1407,6 +1431,7 @@ def main():
         rancher=dict(type='dict', required=False, default=None),
         right_scale=dict(type='dict', required=False, default=None),
         risk=dict(type='int'),
+        roll_config=dict(type='dict', required=False, default=None),
         scheduled_tasks=dict(type='list'),
         security_group_ids=dict(type='list'),
         shutdown_script=dict(type='str'),
