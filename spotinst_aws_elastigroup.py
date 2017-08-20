@@ -372,7 +372,7 @@ options:
 
   tags:
     description:
-      - (Dictionary) a dictionary of tags to configure in the elastigroup. Please specify list of keys and values (key comma value);
+      - (Dictionary) a dictionary of tags to configure in the elastigroup. Please specify list of keys and values (key colon value);
     required: false
 
   target:
@@ -534,6 +534,9 @@ EXAMPLES = '''
           availability_zones:
             - name: us-west-2a
               subnet_id: subnet-2b68a15c
+          tags:
+            - Environment: someEnvValue
+            - OtherTagKey: otherValue
           image_id: ami-f173cc91
           key_pair: spotinst-oregon
           max_size: 5
