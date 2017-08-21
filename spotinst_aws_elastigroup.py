@@ -13,6 +13,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Ansible.  If not, see <http://www.gnu.org/licenses/>.
+from __future__ import (absolute_import, division, print_function)
 
 ANSIBLE_METADATA = {'metadata_version': '1.0',
                     'status': ['preview'],
@@ -590,6 +591,7 @@ group_id:
 '''
 
 HAS_SPOTINST_SDK = False
+__metaclass__ = type
 
 import os
 import time
