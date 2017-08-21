@@ -486,7 +486,6 @@ options:
         Only works if wait_for_instances is True.
     required: false
 """
-
 EXAMPLES = '''
 # Basic configuration YAML example
 
@@ -661,8 +660,6 @@ EXAMPLES = '''
     - debug: var=result
 
 '''
-
-
 RETURN = '''
 ---
 instances:
