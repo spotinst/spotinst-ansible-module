@@ -620,6 +620,48 @@ EXAMPLES = '''
       shell: echo {{ item.private_ip }}\\n >> list-of-private-ips
       with_items: "{{ result.instances }}"
     - debug: var=result
+
+
+# In this example we have set up block device mapping with ephemeral devices
+
+- hosts: localhost
+  tasks:
+    - name: create elastigroup
+      spotinst_aws_elastigroup:
+          state: present
+          risk: 100
+          availability_vs_cost: balanced
+          availability_zones:
+            - name: us-west-2a
+              subnet_id: subnet-2b68a15c
+          image_id: ami-f173cc91
+          key_pair: spotinst-oregon
+          max_size: 15
+          min_size: 0
+          target: 0
+          unit: instance
+          block_device_mappings:
+            - device_name: '/dev/xvda'
+              virtual_name: ephemeral0
+            - device_name: '/dev/xvdb/'
+              virtual_name: ephemeral1
+          monitoring: True
+          name: ansible-group
+          on_demand_instance_type: c3.large
+          product: Linux/UNIX
+          load_balancers:
+            - test-lb-1
+          security_group_ids:
+            - sg-8f4b8fe9
+          spot_instance_types:
+            - c3.large
+          state: absent
+          do_not_update:
+            - image_id
+            - target
+      register: result
+    - debug: var=result
+
 '''
 
 
