@@ -530,6 +530,7 @@ EXAMPLES = '''
     - name: create elastigroup
       spotinst_aws_elastigroup:
           state: present
+          account_id: act-1a9dd2b
           risk: 100
           availability_vs_cost: balanced
           availability_zones:
@@ -550,6 +551,63 @@ EXAMPLES = '''
           product: Linux/UNIX
           security_group_ids:
             - sg-8f4b8fe9
+          block_device_mappings:
+            - device_name: '/dev/sda1'
+              ebs:
+                volume_size: 100
+                volume_type: gp2
+          spot_instance_types:
+            - c3.large
+          do_not_update:
+            - image_id
+          wait_for_instances: True
+          wait_timeout: 600
+      register: result
+
+    - name: Store private ips to file
+      shell: echo {{ item.private_ip }}\\n >> list-of-private-ips
+      with_items: "{{ result.instances }}"
+    - debug: var=result
+
+
+# In this example, we create an elastigroup with multiple block device mappings, tags, and also an account id
+# In organizations with more than one account, you will need to specify an account_id, otherwise spotinst will use the default account
+
+- hosts: localhost
+  tasks:
+    - name: create elastigroup
+      spotinst_aws_elastigroup:
+          state: present
+          account_id: act-1a9dd2b
+          risk: 100
+          availability_vs_cost: balanced
+          availability_zones:
+            - name: us-west-2a
+              subnet_id: subnet-2b68a15c
+          tags:
+            - Environment: someEnvValue
+            - OtherTagKey: otherValue
+          image_id: ami-f173cc91
+          key_pair: spotinst-oregon
+          max_size: 5
+          min_size: 0
+          target: 0
+          unit: instance
+          monitoring: True
+          name: ansible-group-tal
+          on_demand_instance_type: c3.large
+          product: Linux/UNIX
+          security_group_ids:
+            - sg-8f4b8fe9
+          block_device_mappings:
+            - device_name: '/dev/xvda'
+              ebs:
+                volume_size: 60
+                volume_type: gp2
+            - device_name: '/dev/xvdb'
+              ebs:
+                volume_size: 120
+                volume_type: gp2
           spot_instance_types:
             - c3.large
           do_not_update:
@@ -563,6 +621,7 @@ EXAMPLES = '''
       with_items: "{{ result.instances }}"
     - debug: var=result
 '''
+
 
 RETURN = '''
 ---
