@@ -569,9 +569,8 @@ EXAMPLES = '''
       with_items: "{{ result.instances }}"
     - debug: var=result
 
-
 # In this example, we create an elastigroup with multiple block device mappings, tags, and also an account id
-# In organizations with more than one account, you will need to specify an account_id, otherwise spotinst will use the default account
+# In organizations with more than one account, it is required to specify an account_id
 
 - hosts: localhost
   tasks:
@@ -620,7 +619,6 @@ EXAMPLES = '''
       shell: echo {{ item.private_ip }}\\n >> list-of-private-ips
       with_items: "{{ result.instances }}"
     - debug: var=result
-
 
 # In this example we have set up block device mapping with ephemeral devices
 
