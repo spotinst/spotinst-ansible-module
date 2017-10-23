@@ -58,7 +58,6 @@ options:
         snapshot_id(Integer),
         volume_type(String),
         volume_size(Integer))
-    required: false
 
   chef:
     description:
@@ -68,18 +67,15 @@ options:
         user (String),
         pem_key (String),
         chef_version (String)
-    required: false
 
   draining_timeout:
     description:
       - (Integer) Time for instance to be drained from incoming requests and deregistered from ELB before termination.
-    required: false
 
   ebs_optimized:
     description:
       - (Boolean) Enable EBS optimization for supported instances which are not enabled by default.;
         Note - additional charges will be applied.
-    required: false
 
   ebs_volume_pool:
     description:
@@ -88,35 +84,30 @@ options:
         keys allowed are -
         volume_ids (List of Strings),
         device_name (String)
-    required: false
 
   ecs:
     description:
       - (Object) The ECS integration configuration.;
         Expects the following key -
         cluster_name (String)
-    required: false
+
 
   elastic_ips:
     description:
       - (List of Strings) List of ElasticIps Allocation Ids to associate to the group instances
-    required: false
 
   fallback_to_od:
     description:
       - (Boolean) In case of no spots available, Elastigroup will launch an On-demand instance instead
-    required: false
 
   health_check_grace_period:
     description:
       - (Integer) The amount of time, in seconds, after the instance has launched to start and check its health.
     default: 300
-    required: false
 
   health_check_unhealthy_duration_before_replacement:
     description:
       - (Integer) Minimal mount of time instance should be unhealthy for us to consider it unhealthy.
-    required: false
 
   health_check_type:
     choices:
@@ -127,26 +118,22 @@ options:
       - EC2
     description:
       - (String) The service to use for the health check.
-    required: false
 
   iam_role_name:
     description:
       - (String) The instance profile iamRole name
       - Only use iam_role_arn, or iam_role_name
-    required: false
 
   iam_role_arn:
     description:
       - (String) The instance profile iamRole arn
       - Only use iam_role_arn, or iam_role_name
-    required: false
 
   id:
     description:
       - (String) The group id if it already exists and you want to update, or delete it.
         This will not work unless the uniqueness_by field is set to id.
         When this is set, and the uniqueness_by field is set, the group will either be updated or deleted, but not created.
-    required: false
 
   ignore_changes:
     choices:
@@ -154,7 +141,6 @@ options:
       - target
     description:
       - (List of Strings) list of fields on which changes should be ignored when updating
-    required: false
 
   image_id:
     description:
@@ -173,17 +159,14 @@ options:
         Expects the following keys -
         api_server (String),
         token (String)
-    required: false
 
   lifetime_period:
     description:
       - (String) lifetime period
-    required: false
 
   load_balancers:
     description:
       - (List of Strings) List of classic ELB names
-    required: false
 
   max_size:
     description:
@@ -195,7 +178,6 @@ options:
       - (Object) The Mesosphere integration configuration.
         Expects the following key -
         api_server (String)
-    required: false
 
   min_size:
     description:
@@ -229,14 +211,11 @@ options:
         associate_ipv6_address (Boolean),
         private_ip_addresses (List of Objects, Keys are privateIpAddress (String, required) and primary (Boolean))
 
-    required: false
-
   on_demand_count:
     description:
       - (Integer) Required if risk is not set
       - Number of on demand instances to launch. All other instances will be spot instances.;
         Either set this parameter or the risk parameter
-    required: false
 
   on_demand_instance_type:
     description:
@@ -248,7 +227,6 @@ options:
       - (Object) The elastigroup OpsWorks integration configration.;
         Expects the following key -
         layer_id (String)
-    required: false
 
   persistence:
     description:
@@ -257,7 +235,6 @@ options:
         should_persist_root_device (Boolean),
         should_persist_block_devices (Boolean),
         should_persist_private_ip (Boolean)
-    required: false
 
   product:
     choices:
@@ -278,7 +255,6 @@ options:
         access_key (String),
         secret_key (String),
         master_host (String)
-    required: false
 
   right_scale:
     description:
@@ -286,12 +262,10 @@ options:
         Expects the following keys -
         account_id (String),
         refresh_token (String)
-    required: false
 
   risk:
     description:
       - (Integer) required if on demand is not set. The percentage of Spot instances to launch (0 - 100).
-    required: false
 
   roll_config:
     description:
@@ -300,8 +274,7 @@ options:
         Accepts the following keys -
         batch_size_percentage(Integer, Required),
         grace_period - (Integer, Required),
-        health_check_type(String, Optional),
-    required: false
+        health_check_type(String, Optional)
 
   scheduled_tasks:
     description:
@@ -319,7 +292,6 @@ options:
         grace_period (Integer),
         task_type (String, required),
         is_enabled (Boolean)
-    required: false
 
   security_group_ids:
     description:
@@ -331,7 +303,6 @@ options:
     description:
       - (String) The Base64-encoded shutdown script that executes prior to instance termination.
         Encode before setting.
-    required: false
 
   signals:
     description:
@@ -339,12 +310,10 @@ options:
         keys allowed are -
         name (String, required),
         timeout (Integer)
-    required: false
 
   spin_up_time:
     description:
       - (Integer) spin up time, in seconds, for the instance
-    required: false
 
   spot_instance_types:
     description:
@@ -357,12 +326,10 @@ options:
       - absent
     description:
       - (String) create or delete the elastigroup
-    required: false
 
   tags:
     description:
       - (Dictionary) a dictionary of tags to configure in the elastigroup. Please specify list of keys and values (key colon value);
-    required: false
 
   target:
     description:
@@ -372,7 +339,6 @@ options:
   target_group_arns:
     description:
       - (List of Strings) List of target group arns instances should be registered to
-    required: false
 
   tenancy:
     choices:
@@ -380,12 +346,10 @@ options:
       - dedicated
     description:
       - (String) dedicated vs shared tenancy
-    required: false
 
   terminate_at_end_of_billing_hour:
     description:
       - (Boolean) terminate at the end of billing hour
-    required: false
 
   unit:
     choices:
@@ -417,7 +381,7 @@ options:
         target (String),
         maximum (String),
         minimum (String)
-    required: false
+
 
   down_scaling_policies:
     description:
@@ -441,7 +405,7 @@ options:
         target (String),
         maximum (String),
         minimum (String)
-    required: false
+
 
   uniqueness_by:
     choices:
@@ -450,29 +414,29 @@ options:
     description:
       - (String) If your group names are not unique, you may use this feature to update or delete a specific group.
         Whenever this property is set, you must set a group_id in order to update or delete a group, otherwise a group will be created.
-    required: false
+
 
   user_data:
     description:
       - (String) Base64-encoded MIME user data. Encode before setting the value.
-    required: false
+
 
   utilize_reserved_instances:
     description:
       - (Boolean) In case of any available Reserved Instances,
          Elastigroup will utilize your reservations before purchasing Spot instances.
-    required: false
+
 
   wait_for_instances:
     description:
       - (Boolean) Whether or not the elastigroup creation / update actions should wait for the instances to spin
-    required: false
+
 
   wait_timeout:
     description:
       - (Integer) How long the module should wait for instances before failing the action.;
         Only works if wait_for_instances is True.
-    required: false
+
 """
 EXAMPLES = '''
 # Basic configuration YAML example
