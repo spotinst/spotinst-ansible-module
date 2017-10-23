@@ -5,7 +5,7 @@ from __future__ import (absolute_import, division, print_function)
 
 ANSIBLE_METADATA = {'metadata_version': '1.1',
                     'status': ['preview'],
-                    'supported_by': 'certified'}
+                    'supported_by': 'community'}
 DOCUMENTATION = """
 ---
 module: spotinst_aws_elastigroup
