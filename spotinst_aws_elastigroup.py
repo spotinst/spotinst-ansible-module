@@ -775,7 +775,7 @@ tracking_policy_fields = ['policy_name',
                           'statistic',
                           'unit',
                           'cooldown',
-                          'target'
+                          'target',
                           'threshold']
 
 action_fields = ['action_type',
@@ -1292,7 +1292,7 @@ def expand_scaling(eg, module):
             eg_scaling.down = eg_down_scaling_policies
 
     if target_tracking_policies is not None:
-        eg_target_tracking_policies = expand_scaling_policies(target_tracking_policies)
+        eg_target_tracking_policies = expand_target_tracking_policies(target_tracking_policies)
         if eg_target_tracking_policies.__sizeof__() > 0:
             eg_scaling.target = eg_target_tracking_policies
 
