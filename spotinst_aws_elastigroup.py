@@ -885,7 +885,7 @@ def handle_elastigroup(client, module):
 
             group = client.create_elastigroup(group=eg)
             group_id = group['id']
-            # message = 'Created group Successfully.'
+            message = 'Created group Successfully.'
             has_changed = True
 
         elif state == 'absent':
@@ -1440,11 +1440,11 @@ def main():
 
     token = os.environ.get('SPOTINST_TOKEN')
     if not token:
-        token = creds_file_loaded_vars["token"]
+        token = creds_file_loaded_vars.get("token")
 
     account = os.environ.get('ACCOUNT')
     if not account:
-        account = creds_file_loaded_vars["account"]
+        account = creds_file_loaded_vars.get("account")
     if not account:
         account = module.params.get('account_id')
 
