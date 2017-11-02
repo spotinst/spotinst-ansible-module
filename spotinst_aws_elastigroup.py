@@ -660,6 +660,52 @@ EXAMPLES = '''
             - target
       register: result
     - debug: var=result
+
+
+# In this example we create a basic group configuration with a target tracking scaling policy defined
+
+- hosts: localhost
+  tasks:
+    - name: create elastigroup
+      spotinst_aws_elastigroup:
+          account_id: act-92d45673
+          state: present
+          risk: 100
+          availability_vs_cost: balanced
+          availability_zones:
+            - name: us-west-2a
+              subnet_id: subnet-79da021e
+          image_id: ami-f173cc91
+          fallback_to_od: true
+          tags:
+            - Creator: ValueOfCreatorTag
+            - Environment: ValueOfEnvironmentTag
+          key_pair: spotinst-labs-oregon
+          max_size: 10
+          min_size: 0
+          target: 2
+          unit: instance
+          monitoring: True
+          name: ansible-group-1
+          on_demand_instance_type: c3.large
+          product: Linux/UNIX
+          security_group_ids:
+            - sg-46cdc13d
+          spot_instance_types:
+            - c3.large
+          target_tracking_policies:
+            - policy_name: target-tracking-1
+              namespace: AWS/EC2
+              metric_name: CPUUtilization
+              statistic: average
+              unit: percent
+              target: 50
+              cooldown: 120
+          do_not_update:
+            - image_id
+      register: result
+    - debug: var=result
+
 '''
 RETURN = '''
 ---
