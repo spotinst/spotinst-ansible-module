@@ -329,7 +329,7 @@ options:
 
   tags:
     description:
-      - (Dictionary) a dictionary of tags to configure in the elastigroup. Please specify list of keys and values (key colon value);
+      - (List of tagKey:tagValue paris) a list of tags to configure in the elastigroup. Please specify list of keys and values (key colon value);
 
   target:
     description:
