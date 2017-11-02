@@ -691,6 +691,8 @@ try:
 except ImportError:
     pass
 
+DEFAULT_CREDS_PATH = "/.spotinst/credentials"
+
 eni_fields = ['description',
               'device_index',
               'secondary_private_ip_address_count',
@@ -1316,6 +1318,7 @@ def main():
         availability_zones=dict(type='list',required=True),
         block_device_mappings=dict(type='list'),
         chef=dict(type='dict'),
+        credentials_path = dict(type='path'),
         do_not_update=dict(default=[], type='list'),
         down_scaling_policies=dict(type='list'),
         draining_timeout=dict(type='int'),
@@ -1379,28 +1382,37 @@ def main():
     if not HAS_SPOTINST_SDK:
         module.fail_json(msg="the Spotinst SDK library is required. (pip install spotinst)")
 
+    # Retrieve creds file variables
+    home = expanduser("~")
+    creds_file_loaded_vars = dict()
+
+    if module.params.get('credentials_path') is not None:
+        credentials_path = module.params.get('credentials_path')
+    else:
+        credentials_path = DEFAULT_CREDS_PATH
+
+    with open(home + credentials_path, "r") as creds:
+        for line in creds:
+            eq_index = line.find('=')
+            var_name = line[:eq_index].strip()
+            string_value = line[eq_index + 1:].strip()
+            creds_file_loaded_vars[var_name] = string_value
+    # End of creds file retrieval
+
     token = os.environ.get('SPOTINST_TOKEN')
-
     if not token:
-        # Retrieve auth token
-        home = expanduser("~")
-        vars = dict()
+        token = creds_file_loaded_vars["token"]
 
-        with open(home + "/.spotinst/credentials", "r") as creds:
-            for line in creds:
-                eq_index = line.find('=')
-                var_name = line[:eq_index].strip()
-                string_value = line[eq_index + 1:].strip()
-                vars[var_name] = string_value
-
-        token = vars["token"]
+    account = os.environ.get('ACCOUNT')
+    if not account:
+        account = creds_file_loaded_vars["account"]
+    if not account:
+        account = module.params.get('account_id')
 
     client = spotinst.SpotinstClient(auth_token=token, print_output=False)
 
-    eg_account_id = module.params.get('account_id')
-
-    if eg_account_id is not None:
-        client = spotinst.SpotinstClient(auth_token=token, print_output=False, account_id=eg_account_id)
+    if account is not None:
+        client = spotinst.SpotinstClient(auth_token=token, print_output=False, account_id=account)
 
     group_id, message, has_changed = handle_elastigroup(client=client, module=module)
 
