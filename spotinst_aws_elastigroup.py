@@ -364,7 +364,7 @@ options:
       - (List of Objects) a list of hash/dictionaries of scaling policies to configure in the elastigroup;
         '[{"key":"value", "key":"value"}]';
         keys allowed are -
-        are policy_name (String, required),
+        policy_name (String, required),
         namespace (String, required),
         metric_name (String, required),
         dimensions (List of Objects, Keys allowed are name (String, required) and value (String)),
@@ -388,7 +388,7 @@ options:
       - (List of Objects) a list of hash/dictionaries of scaling policies to configure in the elastigroup;
         '[{"key":"value", "key":"value"}]';
         keys allowed are -
-        are policy_name (String, required),
+        policy_name (String, required),
         namespace (String, required),
         metric_name (String, required),
         dimensions ((List of Objects), Keys allowed are name (String, required) and value (String)),
@@ -406,6 +406,19 @@ options:
         maximum (String),
         minimum (String)
 
+  target_tracking_policies:
+    description:
+      - (List of Objects) a list of hash/dictionaries of target tracking policies to configure in the elastigroup;
+        '[{"key":"value", "key":"value"}]';
+        keys allowed are -
+        policy_name (String, required),
+        namespace (String, required),
+        source (String, required),
+        metric_name (String, required),
+        statistic (String, required),
+        unit (String, required),
+        cooldown (String, required),
+        target (String, required)
 
   uniqueness_by:
     choices:
@@ -743,7 +756,7 @@ scheduled_task_fields = ['adjustment',
                          'scale_min_capacity',
                          'scale_max_capacity']
 
-policy_fields = ['policy_name',
+scaling_policy_fields = ['policy_name',
                  'namespace',
                  'metric_name',
                  'dimensions',
@@ -754,6 +767,16 @@ policy_fields = ['policy_name',
                  'cooldown',
                  'unit',
                  'operator']
+
+tracking_policy_fields = ['policy_name',
+                          'namespace',
+                          'source',
+                          'metric_name',
+                          'statistic',
+                          'unit',
+                          'cooldown',
+                          'target'
+                          'threshold']
 
 action_fields = ['action_type',
                  'adjustment',
@@ -1254,6 +1277,7 @@ def expand_network_interfaces(eg_launchspec, enis):
 def expand_scaling(eg, module):
     up_scaling_policies = module.params['up_scaling_policies']
     down_scaling_policies = module.params['down_scaling_policies']
+    target_tracking_policies = module.params['target_tracking_policies']
 
     eg_scaling = spotinst.aws_elastigroup.Scaling()
 
@@ -1267,7 +1291,12 @@ def expand_scaling(eg, module):
         if eg_down_scaling_policies.__sizeof__() > 0:
             eg_scaling.down = eg_down_scaling_policies
 
-    if eg_scaling.down is not None or eg_scaling.up is not None:
+    if target_tracking_policies is not None:
+        eg_target_tracking_policies = expand_scaling_policies(target_tracking_policies)
+        if eg_target_tracking_policies.__sizeof__() > 0:
+            eg_scaling.target = eg_target_tracking_policies
+
+    if eg_scaling.down is not None or eg_scaling.up is not None or eg_scaling.target is not None:
         eg.scaling = eg_scaling
 
 
@@ -1304,11 +1333,20 @@ def expand_scaling_policies(scaling_policies):
     eg_scaling_policies = []
 
     for policy in scaling_policies:
-        eg_policy = expand_fields(policy_fields, policy, 'ScalingPolicy')
+        eg_policy = expand_fields(scaling_policy_fields, policy, 'ScalingPolicy')
         eg_policy.action = expand_fields(action_fields, policy, 'ScalingPolicyAction')
         eg_scaling_policies.append(eg_policy)
 
     return eg_scaling_policies
+
+def expand_target_tracking_policies(tracking_policies):
+    eg_tracking_policies = []
+
+    for policy in tracking_policies:
+        eg_policy = expand_fields(tracking_policy_fields, policy, 'TargetTrackingPolicy')
+        eg_tracking_policies.append(eg_policy)
+
+    return eg_tracking_policies
 
 
 def main():
@@ -1373,6 +1411,7 @@ def main():
         utilize_reserved_instances=dict(type='bool'),
         uniqueness_by=dict(default='name', choices=['name', 'id']),
         up_scaling_policies=dict(type='list'),
+        target_tracking_policies=dict(type='list'),
         wait_for_instances=dict(type='bool', default=False),
         wait_timeout=dict(type='int')
     )
