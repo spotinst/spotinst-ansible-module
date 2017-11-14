@@ -1011,7 +1011,7 @@ def find_group_with_same_name(groups, name):
         if group['name'] == name:
             return True, group.get('id')
 
-    return False
+    return False, None
 
 
 def expand_elastigroup(module, is_update):
