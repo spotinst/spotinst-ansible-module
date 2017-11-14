@@ -16,11 +16,13 @@ description:
   - Can create, update, or delete Spotinst AWS Elastigroups
     Launch configuration is part of the elastigroup configuration,
     so no additional modules are necessary for handling the launch configuration.
-    This module requires that you install the spotinst Python SDK (pip install spotinst)
     You will have to have a credentials file in this location - <home>/.spotinst/credentials
     The credentials file must contain a row that looks like this
     token = <YOUR TOKEN>
     Full documentation available at https://help.spotinst.com/hc/en-us/articles/115003530285-Ansible-
+requirements:
+  - spotinst >= 1.0.21
+  - python >= 2.7
 options:
 
   credentials_path:
