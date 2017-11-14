@@ -1007,11 +1007,12 @@ def retrieve_group_instances(client, module, group_id):
 
 
 def find_group_with_same_name(groups, name):
-    for group in groups:
-        if group['name'] == name:
-            return True, group.get('id')
+    if groups is not None:
+        for group in groups:
+            if group['name'] == name:
+                return False, group.get('id')
 
-    return False, None
+    return True, ""
 
 
 def expand_elastigroup(module, is_update):
