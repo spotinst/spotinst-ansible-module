@@ -1106,11 +1106,11 @@ def expand_launch_spec(eg_compute, module, is_update, do_not_update):
 
     eg_launch_spec.iam_role = expand_fields(iam_fields, module.params, 'IamRole')
 
-    # Validate iam role
-    if eg_launch_spec.iam_role is not None:
-        if eg_launch_spec.iam_role.name is not None:
-            if eg_launch_spec.iam_role.arn is not None:
-                delattr(eg_launch_spec, 'iam_role')
+    # # Validate iam role
+    # if eg_launch_spec.iam_role is not None:
+    #     if eg_launch_spec.iam_role.name is not None:
+    #         if eg_launch_spec.iam_role.arn is not None:
+    #             delattr(eg_launch_spec, 'iam_role')
 
     tags = module.params['tags']
     load_balancers = module.params['load_balancers']
