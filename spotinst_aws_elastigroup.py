@@ -991,6 +991,7 @@ def retrieve_group_instances(client, module, group_id):
 
         is_amount_fulfilled = False
         while is_amount_fulfilled is False and wait_timeout > time.time():
+            instances = list()
             amount_of_fulfilled_instances = 0
             active_instances = client.get_elastigroup_active_instances(group_id=group_id)
 
