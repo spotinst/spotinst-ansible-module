@@ -972,17 +972,21 @@ def handle_elastigroup(client, module):
 
         elif state == 'absent':
             try:
-                mod_stateful_deallocation = module.params.get('stateful_deallocation')
-                if mod_stateful_deallocation:
+                should_delete_images = module.params.get('stateful_deallocation_should_delete_images'),
+                should_delete_snapshots = module.params.get('stateful_deallocation_should_delete_snapshots'),
+                should_delete_network_interfaces = module.params.get(
+                    'stateful_deallocation_should_delete_network_interfaces'),
+                should_delete_volumes = module.params.get('stateful_deallocation_should_delete_volumes')
+
+                if should_delete_snapshots is True or \
+                                should_delete_network_interfaces is True or \
+                                should_delete_volumes is True or \
+                                should_delete_images is True:
                     stateful_deallocation_request = spotinst.aws_elastigroup.StatefulDeallocation(
-                        should_delete_images=
-                        module.params.get('stateful_deallocation_should_delete_images'),
-                        should_delete_snapshots=
-                        module.params.get('stateful_deallocation_should_delete_snapshots'),
-                        should_delete_network_interfaces=
-                        module.params.get('stateful_deallocation_should_delete_network_interfaces'),
-                        should_delete_volumes=
-                        module.params.get('stateful_deallocation_should_delete_volumes')
+                        should_delete_images=should_delete_images,
+                        should_delete_snapshots=should_delete_snapshots,
+                        should_delete_network_interfaces=should_delete_network_interfaces,
+                        should_delete_volumes=should_delete_volumes
                     )
 
                     client.delete_elastigroup_with_deallocation(group_id=group_id,
