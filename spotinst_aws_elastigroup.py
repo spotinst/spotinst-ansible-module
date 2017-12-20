@@ -288,6 +288,16 @@ options:
         grace_period - (Integer, Required),
         health_check_type(String, Optional)
 
+  stateful_deallocation:
+    description:
+      - (Object) Roll configuration.;
+        If you would like the group deallocate stateful resources on deletion, please use this feature.
+        Accepts the following keys -
+        should_delete_images(Boolean, Optional),
+        should_delete_volumes(Boolean, Optional),
+        should_delete_snapshots(Boolean, Optional),
+        should_delete_network_interfaces(Boolean, Optional)
+
   scheduled_tasks:
     description:
       - (List of Objects) a list of hash/dictionaries of scheduled tasks to configure in the elastigroup;
@@ -962,7 +972,19 @@ def handle_elastigroup(client, module):
 
         elif state == 'absent':
             try:
-                client.delete_elastigroup(group_id=group_id)
+                mod_stateful_deallocation = module.params.get('stateful_deallocation')
+                if mod_stateful_deallocation:
+                    stateful_deallocation_request = spotinst.aws_elastigroup.StatefulDeallocation(
+                        should_delete_images=mod_stateful_deallocation.get('should_delete_images'),
+                        should_delete_volumes=mod_stateful_deallocation.get('should_delete_volumes'),
+                        should_delete_snapshots=mod_stateful_deallocation.get('should_delete_snapshots'),
+                        should_delete_network_interfaces=mod_stateful_deallocation.get(
+                            'should_delete_network_interfaces')
+                    )
+                    client.delete_elastigroup_with_deallocation(group_id=group_id,
+                                                                stateful_deallocation=stateful_deallocation_request)
+                else:
+                    client.delete_elastigroup(group_id=group_id)
             except SpotinstClientException as exc:
                 if "GROUP_DOESNT_EXIST" in exc.message:
                     pass
@@ -1442,6 +1464,7 @@ def main():
         spin_up_time=dict(type='int'),
         spot_instance_types=dict(type='list', required=True),
         state=dict(default='present', choices=['present', 'absent']),
+        stateful_deallocation=dict(type='dict'),
         tags=dict(type='list'),
         target=dict(type='int', required=True),
         target_group_arns=dict(type='list'),
