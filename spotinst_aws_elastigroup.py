@@ -975,12 +975,16 @@ def handle_elastigroup(client, module):
                 mod_stateful_deallocation = module.params.get('stateful_deallocation')
                 if mod_stateful_deallocation:
                     stateful_deallocation_request = spotinst.aws_elastigroup.StatefulDeallocation(
-                        should_delete_images=mod_stateful_deallocation.get('should_delete_images'),
-                        should_delete_volumes=mod_stateful_deallocation.get('should_delete_volumes'),
-                        should_delete_snapshots=mod_stateful_deallocation.get('should_delete_snapshots'),
-                        should_delete_network_interfaces=mod_stateful_deallocation.get(
-                            'should_delete_network_interfaces')
+                        should_delete_images=
+                        module.params.get('stateful_deallocation_should_delete_images'),
+                        should_delete_snapshots=
+                        module.params.get('stateful_deallocation_should_delete_snapshots'),
+                        should_delete_network_interfaces=
+                        module.params.get('stateful_deallocation_should_delete_network_interfaces'),
+                        should_delete_volumes=
+                        module.params.get('stateful_deallocation_should_delete_volumes')
                     )
+
                     client.delete_elastigroup_with_deallocation(group_id=group_id,
                                                                 stateful_deallocation=stateful_deallocation_request)
                 else:
@@ -1464,7 +1468,10 @@ def main():
         spin_up_time=dict(type='int'),
         spot_instance_types=dict(type='list', required=True),
         state=dict(default='present', choices=['present', 'absent']),
-        stateful_deallocation=dict(type='dict'),
+        stateful_deallocation_should_delete_images=dict(type='bool'),
+        stateful_deallocation_should_delete_network_interfaces=dict(type='bool'),
+        stateful_deallocation_should_delete_snapshots=dict(type='bool'),
+        stateful_deallocation_should_delete_volumes=dict(type='bool'),
         tags=dict(type='list'),
         target=dict(type='int', required=True),
         target_group_arns=dict(type='list'),
@@ -1504,7 +1511,7 @@ def main():
 
     token = module.params.get('token')
     if not token:
-        token = os.environ.get('SPOTINST_TOKEN')
+        token = os.engnviron.get('SPOTINST_TOKEN')
     if not token:
         token = creds_file_loaded_vars.get("token")
 
