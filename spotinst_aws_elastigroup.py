@@ -761,6 +761,8 @@ group_id:
 
 '''
 
+#version: 1.0.1
+
 HAS_SPOTINST_SDK = False
 __metaclass__ = type
 
