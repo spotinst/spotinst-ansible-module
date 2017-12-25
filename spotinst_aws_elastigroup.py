@@ -288,16 +288,6 @@ options:
         grace_period - (Integer, Required),
         health_check_type(String, Optional)
 
-  stateful_deallocation:
-    description:
-      - (Object) Roll configuration.;
-        If you would like the group deallocate stateful resources on deletion, please use this feature.
-        Accepts the following keys -
-        should_delete_images(Boolean, Optional),
-        should_delete_volumes(Boolean, Optional),
-        should_delete_snapshots(Boolean, Optional),
-        should_delete_network_interfaces(Boolean, Optional)
-
   scheduled_tasks:
     description:
       - (List of Objects) a list of hash/dictionaries of scheduled tasks to configure in the elastigroup;
@@ -348,6 +338,22 @@ options:
       - absent
     description:
       - (String) create or delete the elastigroup
+
+  stateful_deallocation_should_delete_network_interfaces:
+    description:
+      - (Boolean) Enable deletion of network interfaces on stateful group deletion
+
+  stateful_deallocation_should_delete_snapshots:
+    description:
+      - (Boolean) Enable deletion of snapshots on stateful group deletion
+
+  stateful_deallocation_should_delete_images:
+    description:
+      - (Boolean) Enable deletion of images on stateful group deletion
+
+  stateful_deallocation_should_delete_volumes:
+    description:
+      - (Boolean) Enable deletion of volumes on stateful group deletion
 
   tags:
     description:
