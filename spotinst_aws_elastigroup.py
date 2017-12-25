@@ -905,6 +905,15 @@ az_fields = ('name',
              'subnet_id',
              'placement_group_name')
 
+stateful_deallocation_fields = (dict(ansible_field_name='stateful_deallocation_should_delete_images',
+                                     spotinst_field_name='should_delete_images'),
+                                dict(ansible_field_name='stateful_deallocation_should_delete_snapshots',
+                                     spotinst_field_name='should_delete_snapshots'),
+                                dict(ansible_field_name='stateful_deallocation_should_delete_network_interfaces',
+                                     spotinst_field_name='should_delete_network_interfaces'),
+                                dict(ansible_field_name='stateful_deallocation_should_delete_volumes',
+                                     spotinst_field_name='should_delete_volumes'))
+
 opsworks_fields = ('layer_id',)
 
 scaling_strategy_fields = ('terminate_at_end_of_billing_hour',)
@@ -972,25 +981,14 @@ def handle_elastigroup(client, module):
 
         elif state == 'absent':
             try:
-                should_delete_images = module.params.get('stateful_deallocation_should_delete_images'),
-                should_delete_snapshots = module.params.get('stateful_deallocation_should_delete_snapshots'),
-                should_delete_network_interfaces = module.params.get(
-                    'stateful_deallocation_should_delete_network_interfaces'),
-                should_delete_volumes = module.params.get('stateful_deallocation_should_delete_volumes')
-
-                if should_delete_snapshots is True or \
-                                should_delete_network_interfaces is True or \
-                                should_delete_volumes is True or \
-                                should_delete_images is True:
-                    stateful_deallocation_request = spotinst.aws_elastigroup.StatefulDeallocation(
-                        should_delete_images=should_delete_images,
-                        should_delete_snapshots=should_delete_snapshots,
-                        should_delete_network_interfaces=should_delete_network_interfaces,
-                        should_delete_volumes=should_delete_volumes
-                    )
-
+                stateful_dealloc_request = expand_fields(stateful_deallocation_fields, module.params,
+                                                         'StatefulDeallocation')
+                if stateful_dealloc_request.should_delete_network_interfaces is True or \
+                                stateful_dealloc_request.should_delete_images is True or \
+                                stateful_dealloc_request.should_delete_volumes is True or \
+                                stateful_dealloc_request.should_delete_snapshots is True:
                     client.delete_elastigroup_with_deallocation(group_id=group_id,
-                                                                stateful_deallocation=stateful_deallocation_request)
+                                                                stateful_deallocation=stateful_dealloc_request)
                 else:
                     client.delete_elastigroup(group_id=group_id)
             except SpotinstClientException as exc:
