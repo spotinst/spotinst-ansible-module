@@ -1525,7 +1525,7 @@ def main():
 
     token = module.params.get('token')
     if not token:
-        token = os.engnviron.get('SPOTINST_TOKEN')
+        token = os.environ.get('SPOTINST_TOKEN')
     if not token:
         token = creds_file_loaded_vars.get("token")
 
