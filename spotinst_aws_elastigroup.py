@@ -1292,6 +1292,10 @@ def expand_load_balancers(eg_launchspec, load_balancers, target_group_arns):
                 if target_arn is not None:
                     eg_elb.arn = target_arn
                     eg_elb.type = 'TARGET_GROUP'
+                    split_arn = target_arn.split("/")
+                    target_group_name = split_arn[-2]
+                    eg_elb.name = target_group_name
+
                     eg_total_lbs.append(eg_elb)
 
         if len(eg_total_lbs) > 0:
