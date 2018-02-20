@@ -761,7 +761,7 @@ group_id:
 
 '''
 
-#version: 1.0.1
+version = '1.0.2'
 
 HAS_SPOTINST_SDK = False
 __metaclass__ = type
@@ -1535,10 +1535,18 @@ def main():
     if not account:
         account = creds_file_loaded_vars.get("account")
 
-    client = spotinst.SpotinstClient(auth_token=token, print_output=False)
+    spotinst_user_agent = '{}/{}'.format('spotinst-ansible', version)
+
+    client = spotinst.SpotinstClient(auth_token=token,
+                                     print_output=False,
+                                     account_id=None,
+                                     user_agent=spotinst_user_agent)
 
     if account is not None:
-        client = spotinst.SpotinstClient(auth_token=token, print_output=False, account_id=account)
+        client = spotinst.SpotinstClient(auth_token=token,
+                                         print_output=False,
+                                         account_id=account,
+                                         user_agent=spotinst_user_agent)
 
     group_id, message, has_changed = handle_elastigroup(client=client, module=module)
 
