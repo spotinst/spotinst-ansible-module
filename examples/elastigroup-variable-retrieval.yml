@@ -11,11 +11,11 @@
           availability_vs_cost: balanced
           availability_zones:
             - name: us-east-2c
-              subnet_id: subnet-39e2d574 #stg-subnet1  (az1)
+              subnet_id: subnet-123c
             - name: us-east-2b
-              subnet_id: subnet-a9f008d3 #stg-subnet2 (az2)
+              subnet_id: subnet-123b
             - name: us-east-2a
-              subnet_id: subnet-50c24238 #stg-subnet3 (az3)
+              subnet_id: subnet-123a
           image_id: test-ami
           key_pair: spotinst_ci
           max_size: 2
