@@ -1,0 +1,46 @@
+#In this example, we create an elastigroup and wait 600 seconds to retrieve the instances, and use their instance ids
+
+- hosts: localhost
+  tasks:
+    - name: create elastigroup
+      spotinst_aws_elastigroup:
+          profile: ci
+          name: ansible_test_group
+          state: present
+          risk: 100
+          availability_vs_cost: balanced
+          availability_zones:
+            - name: us-east-2c
+              subnet_id: subnet-39e2d574 #stg-subnet1  (az1)
+            - name: us-east-2b
+              subnet_id: subnet-a9f008d3 #stg-subnet2 (az2)
+            - name: us-east-2a
+              subnet_id: subnet-50c24238 #stg-subnet3 (az3)
+          image_id: test-ami
+          key_pair: spotinst_ci
+          max_size: 2
+          min_size: 0
+          target: 2
+          unit: instance
+          monitoring: False
+          on_demand_instance_type: m4.large
+          product: Linux/UNIX
+          tags:
+            - Name: ansible_test_group
+          security_group_ids:
+            - sg-8ad2bbe1
+          spot_instance_types:
+            - m4.xlarge
+            - m5.xlarge
+          do_not_update:
+            - image_id
+            - target
+            - user_data
+          wait_for_instances: True
+          wait_timeout: 600
+      register: result
+
+    - name: Store instance ids to file
+      shell: echo {{ item.instance_id }}\\n >> list_of_instance_ids
+      with_items: "{{ result.instances }}"
+    - debug: var=result

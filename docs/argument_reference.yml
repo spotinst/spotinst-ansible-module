@@ -1,0 +1,594 @@
+options:
+  credentials_path:
+    description:
+      - (String) Optional parameter that allows to set a non-default credentials path.
+       Default is ~/.spotinst/credentials
+
+  account_id:
+    description:
+      - (String) Optional parameter that allows to set an account-id inside the module configuration
+       By default this is retrieved from the credentials path
+
+  profile:
+    description:
+      - (String) Optional parameter that allows to set an profile inside the the credentials file
+       By default this is set to: 'default'
+
+  availability_vs_cost:
+    choices:
+      - availabilityOriented
+      - costOriented
+      - balanced
+    description:
+      - (String) The strategy orientation.
+    required: true
+
+  availability_zones:
+    description:
+      - (List of Objects) a list of hash/dictionaries of Availability Zones that are configured in the elastigroup;
+        '[{"key":"value", "key":"value"}]';
+        keys allowed are
+        name (String),
+        subnet_id (String),
+        placement_group_name (String),
+    required: true
+
+  block_device_mappings:
+    description:
+      - (List of Objects) a list of hash/dictionaries of Block Device Mappings for elastigroup instances;
+        You can specify virtual devices and EBS volumes.;
+        '[{"key":"value", "key":"value"}]';
+        keys allowed are
+        device_name (List of Strings),
+        virtual_name (String),
+        no_device (String),
+        ebs (Object, expects the following keys-
+        delete_on_termination(Boolean),
+        encrypted(Boolean),
+        iops (Integer),
+        snapshot_id(Integer),
+        volume_type(String),
+        volume_size(Integer),
+        kms_key_id (String))
+
+  chef:
+    description:
+      - (Object) The Chef integration configuration.;
+        Expects the following keys - chef_server (String),
+        organization (String),
+        user (String),
+        pem_key (String),
+        chef_version (String)
+
+  code_deploy:
+    description:
+      - (Object) The CodeDeploy integration configuration.;
+        deployment_groups (List of Objects expecting the following keys -
+        application_name (String),
+        deployment_group_name (String)),
+        clean_up_on_failure (Boolean),
+        terminate_instance_on_failure (Boolean)
+
+  docker_swarm:
+    description:
+      - (Object) The Docker Swarm integration configuration.;
+        Expects the following keys -
+        master_host (String),
+        master_port (Integer),
+        auto_scale (Object expects the following keys -
+        is_enabled (Boolean),
+        cooldown (Integer),
+        headroom (Object expects the following keys -
+        cpu_per_unit (Integer),
+        memory_per_unit (Integer),
+        num_of_units (Integer)),
+        key (String),
+        value (String)),
+        down (Object expecting the following key -
+        down_evaluation_periods (Integer)))
+
+  draining_timeout:
+    description:
+      - (Integer) Time for instance to be drained from incoming requests and deregistered from ELB before termination.
+
+  ebs_optimized:
+    description:
+      - (Boolean) Enable EBS optimization for supported instances which are not enabled by default.;
+        Note - additional charges will be applied.
+
+  ecs:
+    description:
+      - (Object) The ECS integration configuration.;
+        Expects the following keys -
+        cluster_name (String),
+        auto_scale (Object expects the following keys -
+        is_enabled (Boolean),
+        is_auto_config (Boolean),
+        cooldown (Integer),
+        headroom (Object expects the following keys -
+        cpu_per_unit (Integer),
+        memory_per_unit (Integer),
+        num_of_units (Integer)),
+        attributes (List of Objects expecting the following keys -
+        key (String),
+        value (String)),
+        down (Object expecting the following key -
+        down_evaluation_periods (Integer)))
+
+  elastic_beanstalk:
+    description:
+      - (Object) The ElasticBeanstalk integration configuration.;
+      Expects the following keys -
+      environment_id (String),
+      deployment_preferences (Object expects the following keys -
+      automatic_roll (Boolean),
+      batch_size_percentage (Integer),
+      grace_period (Integer),
+      strategy (Object expects the following keys -
+      action (String),
+      should_drain_instances (Boolean)))
+
+  elastic_ips:
+    description:
+      - (List of Strings) List of ElasticIps Allocation Ids to associate to the group instances
+
+  fallback_to_od:
+    description:
+      - (Boolean) In case of no spots available, Elastigroup will launch an On-demand instance instead
+
+  health_check_grace_period:
+    description:
+      - (Integer) The amount of time, in seconds, after the instance has launched to start and check its health.
+    default: 300
+
+  health_check_unhealthy_duration_before_replacement:
+    description:
+      - (Integer) Minimal mount of time instance should be unhealthy for us to consider it unhealthy.
+
+  health_check_type:
+    choices:
+      - ELB
+      - HCS
+      - TARGET_GROUP
+      - MLB
+      - EC2
+    description:
+      - (String) The service to use for the health check.
+
+  iam_role_name:
+    description:
+      - (String) The instance profile iamRole name
+      - Only use iam_role_arn, or iam_role_name
+
+  iam_role_arn:
+    description:
+      - (String) The instance profile iamRole arn
+      - Only use iam_role_arn, or iam_role_name
+
+  id:
+    description:
+      - (String) The group id if it already exists and you want to update, or delete it.
+        This will not work unless the uniqueness_by field is set to id.
+        When this is set, and the uniqueness_by field is set, the group will either be updated or deleted, but not created.
+
+  ignore_changes:
+    choices:
+      - image_id
+      - target
+    description:
+      - (List of Strings) list of fields on which changes should be ignored when updating
+
+  image_id:
+    description:
+      - (String) The image Id used to launch the instance.;
+        In case of conflict between Instance type and image type, an error will be returned
+    required: true
+
+  key_pair:
+    description:
+      - (String) Specify a Key Pair to attach to the instances
+    required: true
+
+  kubernetes:
+    description:
+      - (Object) The Kubernetes integration configuration.;
+        Expects the following keys -
+        api_server (String),
+        token (String),
+        integration_mode (String),
+        cluster_identifier (String),
+        auto_scale (Object expects the following keys -
+        is_enabled (Boolean),
+        is_auto_config (Boolean),
+        cooldown (Integer),
+        headroom (Object expects the following keys -
+        cpu_per_unit (Integer),
+        memory_per_unit (Integer),
+        num_of_units (Integer)),
+        labels (List of Objects expecting the following keys -
+        key (String),
+        value (String)),
+        down (Object expecting the following key -
+        down_evaluation_periods (Integer)))
+
+  lifetime_period:
+    description:
+      - (String) lifetime period
+
+  load_balancers:
+    description:
+      - (List of Strings) List of classic ELB names
+
+  max_size:
+    description:
+      - (Integer) The upper limit number of instances that you can scale up to
+    required: true
+
+  mesosphere:
+    description:
+      - (Object) The Mesosphere integration configuration.
+        Expects the following key -
+        api_server (String)
+
+  min_size:
+    description:
+      - (Integer) The lower limit number of instances that you can scale down to
+    required: true
+
+  mlb_load_balancers:
+    description:
+      - (List of Objects representing mlb's expecting the following keys -
+      target_set_id (String)
+      balancer_id (String)
+      auto_weight (String)
+      az_awareness (String)
+      type (String) MULTAI_TARGET_SET
+
+  mlb_runtime:
+    description:
+      - (Object) The Spotinst MLB Runtime integration configuration.;
+      deployment_id (String) The runtime's deployment id
+
+  monitoring:
+    description:
+      - (Boolean) Describes whether instance Enhanced Monitoring is enabled
+    required: true
+
+  name:
+    description:
+      - (String) Unique name for elastigroup to be created, updated or deleted
+    required: true
+
+  network_interfaces:
+    description:
+      - (List of Objects) a list of hash/dictionaries of network interfaces to add to the elastigroup;
+        '[{"key":"value", "key":"value"}]';
+        keys allowed are -
+        description (String),
+        device_index (Integer),
+        secondary_private_ip_address_count (Integer),
+        associate_public_ip_address (Boolean),
+        delete_on_termination (Boolean),
+        groups (List of Strings),
+        network_interface_id (String),
+        private_ip_address (String),
+        subnet_id (String),
+        associate_ipv6_address (Boolean),
+        private_ip_addresses (List of Objects, Keys are privateIpAddress (String, required) and primary (Boolean))
+
+  nomad:
+    description:
+      - (Object) The Nomad integration configuration.;
+        Expects the following keys-
+        master_host (String),
+        master_port (Integer),
+        acl_token (String),
+        auto_scale (Object expects the following keys -
+        is_enabled (Boolean),
+        cooldown (Integer),
+        headroom (Object expects the following keys -
+        cpu_per_unit (Integer),
+        memory_per_unit (Integer),
+        num_of_units (Integer)),
+        constraints (List of Objects expecting the following keys -
+        key (String),
+        value (String)),
+        down (Object expecting the following key -
+        down_evaluation_periods (Integer)))
+
+
+  on_demand_count:
+    description:
+      - (Integer) Required if risk is not set
+      - Number of on demand instances to launch. All other instances will be spot instances.;
+        Either set this parameter or the risk parameter
+
+  on_demand_instance_type:
+    description:
+      - (String) On-demand instance type that will be provisioned
+    required: true
+
+  opsworks:
+    description:
+      - (Object) The elastigroup OpsWorks integration configration.;
+        Expects the following key -
+        layer_id (String),
+        stark_type (String)
+
+  persistence:
+    description:
+      - (Object) The Stateful elastigroup configration.;
+        Accepts the following keys -
+        should_persist_root_device (Boolean),
+        should_persist_block_devices (Boolean),
+        should_persist_private_ip (Boolean),
+        block_devices_mode (String)
+
+  preferred_availability_zones:
+    description:
+      - (List) The preferred availability zones instance should spin instances in.;
+
+  preferred_spot_instance_types:
+    description:
+      - (List) The preferred spot instance types.;
+
+  private_ips:
+    description:
+      - (List) List of Private IPs to associate to the group instances.;
+
+  product:
+    choices:
+      - Linux/UNIX
+      - SUSE Linux
+      - Windows
+      - Linux/UNIX (Amazon VPC)
+      - SUSE Linux (Amazon VPC)
+      - Windows
+    description:
+      - (String) Operation system type._
+    required: true
+
+  rancher:
+    description:
+      - (Object) The Rancher integration configuration.;
+        Expects the following keys -
+        access_key (String),
+        secret_key (String),
+        master_host (String)
+
+  revert_to_spot:
+    description:
+      - (Object) Hold settings for strategy correction - replacing On-Demand for Spot instances.;
+        Expects the following keys -
+        perform_at (String),
+        time_windows (List of Strings representing the time windows)
+
+  right_scale:
+    description:
+      - (Object) The Rightscale integration configuration.;
+        Expects the following keys -
+        account_id (String),
+        refresh_token (String)
+        region (String)
+
+  risk:
+    description:
+      - (Integer) required if on demand is not set. The percentage of Spot instances to launch (0 - 100).
+
+  route53:
+    description:
+      - (Object) The Route53 integration configuration.;
+        Expects the following key -
+        domains (List of Objects expecting the following keys -
+        hosted_zone_id (String),
+        record_sets (List of Objects expecting the following keys -
+        name (String)
+        use_public_ip (Boolean)))
+
+  roll_config:
+    description:
+      - (Object) Roll configuration.;
+        If you would like the group to roll after updating, please use this feature.
+        Accepts the following keys -
+        batch_size_percentage(Integer, Required),
+        grace_period - (Integer, Required),
+        health_check_type(String, Optional)
+
+  scheduled_tasks:
+    description:
+      - (List of Objects) a list of hash/dictionaries of scheduled tasks to configure in the elastigroup;
+        '[{"key":"value", "key":"value"}]';
+        keys allowed are -
+        adjustment (Integer),
+        scale_target_capacity (Integer),
+        scale_min_capacity (Integer),
+        scale_max_capacity (Integer),
+        adjustment_percentage (Integer),
+        batch_size_percentage (Integer),
+        cron_expression (String),
+        frequency (String),
+        grace_period (Integer),
+        task_type (String, required),
+        is_enabled (Boolean),
+        start_time (String)
+
+  security_group_ids:
+    description:
+      - (List of Strings) One or more security group IDs. ;
+        In case of update it will override the existing Security Group with the new given array
+    required: true
+
+  shut_down_script:
+    description:
+      - (String) The Base64-encoded shutdown script that executes prior to instance termination.
+        Encode before setting.
+
+  signals:
+    description:
+      - (List of Objects) a list of hash/dictionaries of signals to configure in the elastigroup;
+        keys allowed are -
+        name (String, required),
+        timeout (Integer)
+
+  spin_up_time:
+    description:
+      - (Integer) spin up time, in seconds, for the instance
+
+  spot_instance_types:
+    description:
+      - (List of Strings) Spot instance type that will be provisioned.
+    required: true
+
+  state:
+    choices:
+      - present
+      - absent
+    description:
+      - (String) create or delete the elastigroup
+
+  stateful_deallocation_should_delete_network_interfaces:
+    description:
+      - (Boolean) Enable deletion of network interfaces on stateful group deletion
+
+  stateful_deallocation_should_delete_snapshots:
+    description:
+      - (Boolean) Enable deletion of snapshots on stateful group deletion
+
+  stateful_deallocation_should_delete_images:
+    description:
+      - (Boolean) Enable deletion of images on stateful group deletion
+
+  stateful_deallocation_should_delete_volumes:
+    description:
+      - (Boolean) Enable deletion of volumes on stateful group deletion
+
+  subnet_ids:
+    description:
+      - (List) A comma-separated list of subnet identifiers for your group
+
+  tags:
+    description:
+      - (List of tagKey:tagValue paris) a list of tags to configure in the elastigroup. Please specify list of keys and values (key colon value);
+
+  target:
+    description:
+      - (Integer) The number of instances to launch
+    required: true
+
+  target_group_arns:
+    description:
+      - (List of Strings) List of target group arns instances should be registered to
+
+  tenancy:
+    choices:
+      - default
+      - dedicated
+    description:
+      - (String) dedicated vs shared tenancy
+
+  terminate_at_end_of_billing_hour:
+    description:
+      - (Boolean) terminate at the end of billing hour
+
+  unit:
+    choices:
+      - instance
+      - weight
+    description:
+      - (String) The capacity unit to launch instances by.
+    required: true
+
+  up_scaling_policies:
+    description:
+      - (List of Objects) a list of hash/dictionaries of scaling policies to configure in the elastigroup;
+        '[{"key":"value", "key":"value"}]';
+        keys allowed are -
+        policy_name (String, required),
+        namespace (String, required),
+        metric_name (String, required),
+        dimensions (List of Objects, Keys allowed are name (String, required) and value (String)),
+        statistic (String, required),
+        extended_statistic (String),
+        evaluation_periods (String, required),
+        period (String, required),
+        threshold (String, required),
+        cooldown (String, required),
+        unit (String, required),
+        operator (String, required),
+        action_type (String, required),
+        adjustment (String),
+        min_target_capacity (String),
+        target (String),
+        maximum (String),
+        minimum (String),
+        source (String)
+
+
+  down_scaling_policies:
+    description:
+      - (List of Objects) a list of hash/dictionaries of scaling policies to configure in the elastigroup;
+        '[{"key":"value", "key":"value"}]';
+        keys allowed are -
+        policy_name (String, required),
+        namespace (String, required),
+        metric_name (String, required),
+        dimensions ((List of Objects), Keys allowed are name (String, required) and value (String)),
+        statistic (String, required),
+        extended_statistic (String),
+        evaluation_periods (String, required),
+        period (String, required),
+        threshold (String, required),
+        cooldown (String, required),
+        unit (String, required),
+        operator (String, required),
+        action_type (String, required),
+        adjustment (String),
+        max_target_capacity (String),
+        target (String),
+        maximum (String),
+        minimum (String),
+        source (String)
+
+  target_tracking_policies:
+    description:
+      - (List of Objects) a list of hash/dictionaries of target tracking policies to configure in the elastigroup;
+        '[{"key":"value", "key":"value"}]';
+        keys allowed are -
+        policy_name (String, required),
+        namespace (String, required),
+        source (String, required),
+        metric_name (String, required),
+        statistic (String, required),
+        unit (String, required),
+        cooldown (String, required),
+        target (String, required)
+
+  uniqueness_by:
+    choices:
+      - id
+      - name
+    description:
+      - (String) If your group names are not unique, you may use this feature to update or delete a specific group.
+        Whenever this property is set, you must set a group_id in order to update or delete a group, otherwise a group will be created.
+
+
+  user_data:
+    description:
+      - (String) Base64-encoded MIME user data. Encode before setting the value.
+
+
+  utilize_reserved_instances:
+    description:
+      - (Boolean) In case of any available Reserved Instances,
+         Elastigroup will utilize your reservations before purchasing Spot instances.
+
+
+  wait_for_instances:
+    description:
+      - (Boolean) Whether or not the elastigroup creation / update actions should wait for the instances to spin
+
+
+  wait_timeout:
+    description:
+      - (Integer) How long the module should wait for instances before failing the action.;
+        Only works if wait_for_instances is True.

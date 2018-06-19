@@ -1,0 +1,56 @@
+#Perform scheduled actions on your elastigroup such as scale, instance count adjustments etc.
+
+- hosts: localhost
+  tasks:
+    - name: create elastigroup
+      spotinst_aws_elastigroup:
+          name: ansible_test_group
+          state: present
+          risk: 100
+          availability_vs_cost: balanced
+          availability_zones:
+            - name: us-east-2c
+              subnet_id: subnet-123c
+            - name: us-east-2b
+              subnet_id: subnet-123b
+            - name: us-east-2a
+              subnet_id: subnet-123a
+          image_id: test-ami
+          key_pair: test-key-pair
+          max_size: 2
+          min_size: 0
+          target: 0
+          unit: instance
+          monitoring: False
+          on_demand_instance_type: m4.large
+          product: Linux/UNIX
+          user_data: IyEvdXNyL2Jpbi9lbnYgYmFzaA==
+          shutdown_script: IyEvdXNyL2Jpbi9lbnYgYmFzaA==
+          scheduled_tasks:
+            - task_type: scale
+              start_time: "2019-05-25T10:55:09Z"
+              scale_target_capacity: 3
+              scale_min_capacity: 3
+              scale_max_capacity: 3
+            - task_type: backup_ami
+              frequency: hourly
+            - task_type: roll
+              cron_expression: "00 17 * * 3"
+              batch_size_percentage: 30
+            - task_type: scaleDown
+              cron_expression: "00 22 * * 3"
+              adjustment: {{scheduling_scale_down_adjustment}}
+          tags:
+            - Name: ansible_test_group
+            - Environment: dev
+          security_group_ids:
+            - sg-default
+          spot_instance_types:
+            - m4.xlarge
+            - m5.xlarge
+          do_not_update:
+            - image_id
+            - target
+            - user_data
+      register: result
+    - debug: var=result

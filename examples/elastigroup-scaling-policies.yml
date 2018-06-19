@@ -1,0 +1,97 @@
+#Scale your elastigroup using up/down and target tracking scaling policies with a variety of adjustment operations
+
+- hosts: localhost
+  tasks:
+    - name: create elastigroup
+      spotinst_aws_elastigroup:
+          name: ansible_test_group
+          state: present
+          risk: 100
+          availability_vs_cost: balanced
+          availability_zones:
+            - name: us-east-2c
+              subnet_id: subnet-123c
+            - name: us-east-2b
+              subnet_id: subnet-123b
+            - name: us-east-2a
+              subnet_id: subnet-123a
+          image_id: test-ami
+          key_pair: test-key-pair
+          max_size: 2
+          min_size: 0
+          target: 0
+          unit: instance
+          monitoring: False
+          on_demand_instance_type: m4.large
+          product: Linux/UNIX
+          user_data: IyEvdXNyL2Jpbi9lbnYgYmFzaA==
+          shutdown_script: IyEvdXNyL2Jpbi9lbnYgYmFzaA==
+          target_tracking_policies:
+            - policy_name: test-target-tracking-1
+              namespace: AWS/EC2
+              metric_name: CPUUtilization
+              statistic: average
+              unit: percent
+              target: 50
+              cooldown: 120
+              source: cloudWatch
+          up_scaling_policies:
+            - policy_name: test-scaling-policies-1
+              namespace: AWS/EC2
+              metric_name: CPUUtilization
+              statistic: average
+              unit: percent
+              cooldown: 120
+              threshold: 50
+              source: cloudWatch
+              dimensions:
+                - name: InstanceId
+              evaluation_periods: 5
+              period: 300
+              action_type: adjustment
+              adjustment: 1
+            - policy_name: test-scaling-policies-2
+              namespace: AWS/EC2
+              metric_name: CPUUtilization
+              statistic: average
+              unit: percent
+              cooldown: 120
+              threshold: 50
+              source: cloudWatch
+              dimensions:
+                - name: InstanceType
+              evaluation_periods: 5
+              period: 300
+              action_type: updateCapacity
+              target: 10
+              maximum: 15
+              minimum: 5
+          down_scaling_policies:
+            - policy_name: test-scaling-policies-1
+              namespace: AWS/EC2
+              metric_name: CPUUtilization
+              statistic: average
+              unit: percent
+              cooldown: 120
+              threshold: 50
+              source: cloudWatch
+              dimensions:
+                - name: InstanceId
+              evaluation_periods: 5
+              period: 300
+              action_type: percentageAdjustment
+              adjustment: 20
+          tags:
+            - Name: ansible_test_group
+            - Environment: dev
+          security_group_ids:
+            - sg-default
+          spot_instance_types:
+            - m4.xlarge
+            - m5.xlarge
+          do_not_update:
+            - image_id
+            - target
+            - user_data
+      register: result
+    - debug: var=result
