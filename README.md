@@ -380,7 +380,7 @@ In this advanced example, we create an elastigroup with
               batch_size_percentage: 30
             - task_type: scaleDown
               cron_expression: "00 22 * * 3"
-              adjustment: {{scheduling_scale_down_adjustment}}
+              adjustment: 1
           tags:
             - Name: ansible_test_group
             - Environment: dev
