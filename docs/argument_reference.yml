@@ -1,73 +1,125 @@
 options:
   credentials_path:
     description:
-      - (String) Optional parameter that allows to set a non-default credentials path.
-       Default is ~/.spotinst/credentials
-
-  account_id:
-    description:
-      - (String) Optional parameter that allows to set an account-id inside the module configuration
-       By default this is retrieved from the credentials path
+      - credentials file path.
+    default: ~/.spotinst/credentials
+    type: str
 
   profile:
     description:
-      - (String) Optional parameter that allows to set an profile inside the the credentials file
-       By default this is set to: 'default'
+      - credentials profile to use
+    default: default
+    type: str
+
+  account_id:
+    description:
+      - account id to authenticate with
+    default: taken from credentials file
+    type: str
 
   availability_vs_cost:
+    description:
+      - The strategy orientation
+    required: true
     choices:
       - availabilityOriented
       - costOriented
       - balanced
-    description:
-      - (String) The strategy orientation.
-    required: true
 
   availability_zones:
     description:
-      - (List of Objects) a list of hash/dictionaries of Availability Zones that are configured in the elastigroup;
-        '[{"key":"value", "key":"value"}]';
-        keys allowed are
-        name (String),
-        subnet_id (String),
-        placement_group_name (String),
+      - availability zone configuration
     required: true
+    supoptions:
+      name:
+        description: availability zone name
+        type: str
+      subnet_id:
+        description: subnet id
+        type: str
+      placement_group_name:
+        description: placement group name
+        type: str
 
   block_device_mappings:
     description:
-      - (List of Objects) a list of hash/dictionaries of Block Device Mappings for elastigroup instances;
-        You can specify virtual devices and EBS volumes.;
-        '[{"key":"value", "key":"value"}]';
-        keys allowed are
-        device_name (List of Strings),
-        virtual_name (String),
-        no_device (String),
-        ebs (Object, expects the following keys-
-        delete_on_termination(Boolean),
-        encrypted(Boolean),
-        iops (Integer),
-        snapshot_id(Integer),
-        volume_type(String),
-        volume_size(Integer),
-        kms_key_id (String))
+      - EBS configurations for elastigroup
+    suboptions:
+      device_name:
+        description: ebs device name
+        type: str
+      virtual_name:
+        description: ebs device virtual name
+        type: str
+      no_device:
+        description: unmap a defined device
+        type: bool
+        default: ""
+      ebs:
+        description: ebs configuration
+        suboptions:
+          delete_on_termination:
+            description: delete the volume when instance is terminated
+            type: bool
+          encrypted:
+            description: ebs device encryption
+            type: bool
+          iops:
+            description: ebs device iops
+            type: int
+          snapshot_id:
+            description: snapshot id
+            type: str
+          volume_type:
+            description: volume type
+            default: standard
+            choices:
+              - standard
+              - io1
+              - gp2
+              - st1
+              - sc1
+          volume_size:
+            description: volume size
+            type: int
+          kms_key_id:
+            description: kms key id
+            type: str
 
   chef:
     description:
-      - (Object) The Chef integration configuration.;
-        Expects the following keys - chef_server (String),
-        organization (String),
-        user (String),
-        pem_key (String),
-        chef_version (String)
+      - chef integration configuration
+    suboptions:
+        user:
+          description: user name
+          type: str
+        pem_key:
+          description: pem key
+          type: str
+        chef_version:
+          description: version
+          type: str
 
   code_deploy:
     description:
-      - (Object) The CodeDeploy integration configuration.;
-        deployment_groups (List of Objects expecting the following keys -
-        application_name (String),
-        deployment_group_name (String)),
-        clean_up_on_failure (Boolean),
-        terminate_instance_on_failure (Boolean)
+      - code deploy integration configuration
+    suboptions:
+      deployment_groups:
+        description: deployment groups configurations
+        type: list
+        suboptions:
+          application_name:
+            description: application name
+            type: str
+          deployment_group_name:
+            description: deployment group name
+            type: str
+      clean_up_on_failure:
+        description: clean up on failure
+        type: bool
+      terminate_instance_on_failure:
+        description: terminate instance on failure
+        type: bool
 
   docker_swarm:
     description:

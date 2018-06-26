@@ -38,18 +38,40 @@ cp spotinst-ansible-module/spotinst_aws_elastigroup.py /lib/ansible/modules/clou
 Otherwise the module comes pre-installed with the latest [Ansible](https://github.com/ansible/ansible) release.
 
 ## Configuring Credentials
-The mechanism in which the module looks for credentials is to search through a list of possible locations and stop as soon as it finds credentials. The order in which the module searches for credentials is:
-  - The keys; `credentials_path` and `profile` inside the playbook itself  
-  - Environment variables in `SPOTINST_ACCOUNT` & `SPOTINST_TOKEN`
-  - Environment variables in `SPOTINST_PROFILE` & `SPOTINST_SHARED_CREDENTIALS_FILE`
-  - Shared credential file `~/.spotinst/credentials`
+The mechanism in which the module looks for credentials is to search through a list of possible locations and stop as soon as it finds credentials. 
+The order in which the sdk searches for credentials is:
+  1. Fetching the account and token from environment variables under `SPOTINST_ACCOUNT` & `SPOTINST_TOKEN`
+
+If you choose to not pass your credentials directly you configure a credentials file, this file should be a valid `.yml` file.
+The default shared credential file location is `~/.spotinst/credentials` and the default profile is `default`
+- example
+
+```yaml
+default: #profile
+  token: $defaul_spotinst_token
+  account: $default_spotinst-account-id
+my_profle:
+  token: $my_spotinst_token
+  account: $my_spotinst-account-id
+```
   
->- example credentials file
- ```yaml
- default:
-   token: token
-   account: account
- ```
+  2. You can overwrite the credentials file location and the profile used as parameters `credentials_path` and/or `profile` inside the playbook
+- example
+  
+```yaml
+- hosts: localhost
+  tasks:
+    - name: example elastigroup
+      spotinst_aws_elastigroup:
+          name: ansible_test_group
+          state: present
+          credentials_path: /path/to/file
+          profile: my_profile
+...
+```
+
+  3. You can overwrite the credentials file location and the profile used as environment variables `SPOTINST_PROFILE` and/or `SPOTINST_SHARED_CREDENTIALS_FILE`
+  4. Fetching from the default location with the default profile
 
 ## Usage
 ```bash

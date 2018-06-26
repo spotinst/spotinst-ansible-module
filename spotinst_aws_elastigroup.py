@@ -18,13 +18,14 @@ author: Spotinst
 description:
   - Can create, update, or delete Spotinst AWS Elastigroups
     Launch configuration is part of the elastigroup configuration,
-    so no additional modules are necessary for handling the launch configuration.
-    You will have to have a credentials file in this location - <home>/.spotinst/credentials
-    The credentials file must be a valid .yml file and contain the following fields
-    default:
+    no additional modules are necessary for handling the launch configuration.
+    The credentials file should be in this location: ~/.spotinst/credentials
+    The file must be a valid .yml file and contain the following fields
+    default: #profile
         token: <YOUR TOKEN>
         account: <YOUR ACCOUNT>
-    Full documentation available at https://help.spotinst.com/hc/en-us/articles/115003530285-Ansible-
+    Full documentation available at 
+    https://help.spotinst.com/hc/en-us/articles/115003530285-Ansible-
 requirements:
   - spotinst-sdk >= 1.0.29
   - python >= 2.7
@@ -32,73 +33,125 @@ requirements:
 options:
   credentials_path:
     description:
-      - (String) Optional parameter that allows to set a non-default credentials path.
-       Default is ~/.spotinst/credentials
-
-  account_id:
-    description:
-      - (String) Optional parameter that allows to set an account-id inside the module configuration
-       By default this is retrieved from the credentials path
+      - credentials file path.
+    default: ~/.spotinst/credentials
+    type: str
 
   profile:
     description:
-      - (String) Optional parameter that allows to set an profile inside the the credentials file
-       By default this is set to: 'default'
+      - credentials profile to use
+    default: default
+    type: str
+
+  account_id:
+    description:
+      - account id to authenticate with
+    default: taken from credentials file
+    type: str
 
   availability_vs_cost:
+    description:
+      - The strategy orientation
+    required: true
     choices:
       - availabilityOriented
       - costOriented
       - balanced
-    description:
-      - (String) The strategy orientation.
-    required: true
 
   availability_zones:
     description:
-      - (List of Objects) a list of hash/dictionaries of Availability Zones that are configured in the elastigroup;
-        '[{"key":"value", "key":"value"}]';
-        keys allowed are
-        name (String),
-        subnet_id (String),
-        placement_group_name (String),
+      - availability zone configuration
     required: true
+    supoptions:
+      name:
+        description: availability zone name
+        type: str
+      subnet_id:
+        description: subnet id
+        type: str
+      placement_group_name:
+        description: placement group name
+        type: str
 
   block_device_mappings:
     description:
-      - (List of Objects) a list of hash/dictionaries of Block Device Mappings for elastigroup instances;
-        You can specify virtual devices and EBS volumes.;
-        '[{"key":"value", "key":"value"}]';
-        keys allowed are
-        device_name (List of Strings),
-        virtual_name (String),
-        no_device (String),
-        ebs (Object, expects the following keys-
-        delete_on_termination(Boolean),
-        encrypted(Boolean),
-        iops (Integer),
-        snapshot_id(Integer),
-        volume_type(String),
-        volume_size(Integer),
-        kms_key_id (String))
+      - EBS configurations for elastigroup
+    suboptions:
+      device_name:
+        description: ebs device name
+        type: str
+      virtual_name:
+        description: ebs device virtual name
+        type: str
+      no_device:
+        description: unmap a defined device
+        type: bool
+        default: ""
+      ebs:
+        description: ebs configuration
+        suboptions:
+          delete_on_termination:
+            description: delete the volume when instance is terminated
+            type: bool
+          encrypted:
+            description: ebs device encryption
+            type: bool
+          iops:
+            description: ebs device iops
+            type: int
+          snapshot_id:
+            description: snapshot id
+            type: str
+          volume_type:
+            description: volume type
+            default: standard
+            choices:
+              - standard
+              - io1
+              - gp2
+              - st1
+              - sc1
+          volume_size:
+            description: volume size
+            type: int
+          kms_key_id:
+            description: kms key id
+            type: str
 
   chef:
     description:
-      - (Object) The Chef integration configuration.;
-        Expects the following keys - chef_server (String),
-        organization (String),
-        user (String),
-        pem_key (String),
-        chef_version (String)
+      - chef integration configuration
+    suboptions:
+        user:
+          description: user name
+          type: str
+        pem_key:
+          description: pem key
+          type: str
+        chef_version:
+          description: version
+          type: str
 
   code_deploy:
     description:
-      - (Object) The CodeDeploy integration configuration.;
-        deployment_groups (List of Objects expecting the following keys -
-        application_name (String),
-        deployment_group_name (String)),
-        clean_up_on_failure (Boolean),
-        terminate_instance_on_failure (Boolean)
+      - code deploy integration configuration
+    suboptions:
+      deployment_groups:
+        description: deployment groups configurations
+        type: list
+        suboptions:
+          application_name:
+            description: application name
+            type: str
+          deployment_group_name:
+            description: deployment group name
+            type: str
+      clean_up_on_failure:
+        description: clean up on failure
+        type: bool
+      terminate_instance_on_failure:
+        description: terminate instance on failure
+        type: bool
 
   docker_swarm:
     description:
@@ -120,7 +173,8 @@ options:
 
   draining_timeout:
     description:
-      - (Integer) Time for instance to be drained from incoming requests and deregistered from ELB before termination.
+      - (Integer) Time for instance to be drained 
+      from incoming requests and deregistered from ELB before termination.
 
   ebs_optimized:
     description:
@@ -200,7 +254,7 @@ options:
     description:
       - (String) The group id if it already exists and you want to update, or delete it.
         This will not work unless the uniqueness_by field is set to id.
-        When this is set, and the uniqueness_by field is set, the group will either be updated or deleted, 
+        When this is set, and the uniqueness_by field is set, the group will either be updated or deleted,
         but not created.
 
   ignore_changes:
@@ -500,7 +554,7 @@ options:
 
   tags:
     description:
-      - (List of tagKey:tagValue paris) a list of tags to configure in the elastigroup. Please specify list of keys 
+      - (List of tagKey:tagValue paris) a list of tags to configure in the elastigroup. Please specify list of keys
       and values (key colon value);
 
   target:
@@ -602,7 +656,7 @@ options:
       - name
     description:
       - (String) If your group names are not unique, you may use this feature to update or delete a specific group.
-        Whenever this property is set, you must set a group_id in order to update or delete a group, otherwise a 
+        Whenever this property is set, you must set a group_id in order to update or delete a group, otherwise a
         group will be created.
 
 
@@ -624,7 +678,8 @@ options:
 
   wait_timeout:
     description:
-      - (Integer) How long the module should wait for instances before failing the action.;
+      - (Integer) How long the module should wait
+      for instances before failing the action.;
         Only works if wait_for_instances is True.
 
 """
@@ -669,7 +724,8 @@ EXAMPLES = '''
 #  - user data and shutdown script
 #  - multiple EBS device mappings for the instances in this group
 #  - network interfaces configuration for the instances in this group
-#  - revert to spot configuration, which is the time frame at which Spotinst tries to spin spots instead of on-demands
+#  - revert to spot configuration,
+which is the time frame at which Spotinst tries to spin spots instead of on-demands
 #  - preferred availability zones in which to spin instances
 #  - preferred spot instance types to launch
 
@@ -745,7 +801,8 @@ EXAMPLES = '''
       register: result
     - debug: var=result
 
-#In this example, we create an elastigroup and wait 600 seconds to retrieve the instances, and use their instance ids
+#In this example, we create an elastigroup and wait 600 seconds
+to retrieve the instances, and use their instance ids
 
 - hosts: localhost
   tasks:
@@ -792,7 +849,8 @@ EXAMPLES = '''
       with_items: "{{ result.instances }}"
     - debug: var=result
 
-#Integrate and connect your instances AWS's ELB and ALB along with Spotinst's MLB
+#Integrate and connect your instances
+AWS's ELB and ALB along with Spotinst's MLB
 
 - hosts: localhost
   tasks:
@@ -823,7 +881,7 @@ EXAMPLES = '''
           load_balancers:
             - test_classic_elb
           target_group_arns:
-            - "arn:aws:elasticloadbalancing:us-west-2:922761411234:targetgroup/TestTargetGroup/123abc"
+            - "arn:aws:elb:us-west-2:123:targetgroup/TestTargetGroup/123abc"
           mlb_load_balancers:
             - target_set_id: "ts-123456789"
               balancer_id: "lb-123456789"
@@ -844,7 +902,8 @@ EXAMPLES = '''
       register: result
     - debug: var=result
 
-#Perform scheduled actions on your elastigroup such as scale, instance count adjustments etc.
+#Perform scheduled actions on your elastigroup
+such as scale, instance count adjustments etc.
 
 - hosts: localhost
   tasks:
@@ -952,7 +1011,8 @@ EXAMPLES = '''
       register: result
     - debug: var=result
 
-#Scale your elastigroup using up/down and target tracking scaling policies with a variety of adjustment operations
+#Scale your elastigroup using up/down and
+target tracking scaling policies with a variety of adjustment operations
 
 - hosts: localhost
   tasks:
@@ -1774,27 +1834,33 @@ def handle_elastigroup(client, module):
                 roll_config = module.params.get('roll_config')
                 if roll_config:
                     eg_roll = spotinst_sdk.aws_elastigroup.Roll(
-                        batch_size_percentage=roll_config.get('batch_size_percentage'),
+                        batch_size_percentage=roll_config.get(
+                            'batch_size_percentage'),
                         grace_period=roll_config.get('grace_period'),
                         health_check_type=roll_config.get('health_check_type'))
                     roll_response = client.roll_group(
                         group_roll=eg_roll, group_id=group_id)
-                    message = 'Updated and started rolling the group successfully.'
+                    message = \
+                        'Updated and started rolling the group successfully.'
             except SpotinstClientException as exc:
-                message = 'Updated group successfully, but failed to perform roll. Error:' + \
+                message = 'Updated group successfully, ' \
+                          'but failed to perform roll. Error:' + \
                           str(exc)
             has_changed = True
 
         elif state == 'absent':
             try:
-                stateful_dealloc_request = expand_fields(
-                    stateful_deallocation_fields, module.params, 'StatefulDeallocation')
-                if stateful_dealloc_request.should_delete_network_interfaces is True or \
-                        stateful_dealloc_request.should_delete_images is True or \
-                        stateful_dealloc_request.should_delete_volumes is True or \
-                        stateful_dealloc_request.should_delete_snapshots is True:
+                stfl_dealloc_request = expand_fields(
+                    stateful_deallocation_fields,
+                    module.params, 'StatefulDeallocation')
+                if stfl_dealloc_request. \
+                        should_delete_network_interfaces is True or \
+                        stfl_dealloc_request.should_delete_images is True or \
+                        stfl_dealloc_request.should_delete_volumes is True or \
+                        stfl_dealloc_request.should_delete_snapshots is True:
                     client.delete_elastigroup_with_deallocation(
-                        group_id=group_id, stateful_deallocation=stateful_dealloc_request)
+                        group_id=group_id,
+                        stateful_deallocation=stfl_dealloc_request)
                 else:
                     client.delete_elastigroup(group_id=group_id)
             except SpotinstClientException as exc:
@@ -1802,7 +1868,8 @@ def handle_elastigroup(client, module):
                     pass
                 else:
                     module.fail_json(
-                        msg="Error while attempting to delete group : " + exc.message)
+                        msg="Error while attempting to delete group :"
+                            " " + exc.message)
 
             message = 'Deleted group successfully.'
             has_changed = True
@@ -1822,7 +1889,9 @@ def retrieve_group_instances(client, module, group_id):
     state = module.params.get('state')
     instances = list()
 
-    if state == 'present' and group_id is not None and wait_for_instances is True:
+    if state == 'present' and \
+            group_id is not None and \
+            wait_for_instances is True:
 
         is_amount_fulfilled = False
         while is_amount_fulfilled is False and wait_timeout > time.time():
@@ -1921,7 +1990,8 @@ def expand_compute(eg, module, is_update, do_not_update):
         if preferred_spot_instance_types:
             eg_instance_types.preferred_spot = preferred_spot_instance_types
 
-        if eg_instance_types.spot is not None or eg_instance_types.ondemand is not None:
+        if eg_instance_types.spot is not None \
+                or eg_instance_types.ondemand is not None:
             eg_compute.instance_types = eg_instance_types
 
     if preferred_availability_zones:
@@ -1940,7 +2010,8 @@ def expand_launch_spec(eg_compute, module, is_update, do_not_update):
         module.params,
         'LaunchSpecification')
 
-    if module.params['iam_role_arn'] is not None or module.params['iam_role_name'] is not None:
+    if module.params['iam_role_arn'] is not None \
+            or module.params['iam_role_name'] is not None:
         eg_launch_spec.iam_role = expand_fields(
             iam_fields, module.params, 'IamRole')
 
@@ -2090,7 +2161,8 @@ def expand_strategy(eg, module):
     if revert_to_spot:
         eg_strategy.revert_to_spot = expand_fields(
             revert_to_spot_fields, revert_to_spot, 'RevertToSpot')
-        eg_strategy.revert_to_spot.time_windows = revert_to_spot['time_windows']
+        eg_strategy.revert_to_spot.time_windows = \
+            revert_to_spot['time_windows']
 
     eg.strategy = eg_strategy
 
@@ -2328,7 +2400,8 @@ def expand_ecs(eg_integrations, ecs_config):
         ecs_down_config = ecs_auto_scale_config.get('down', None)
         if ecs_down_config:
             ecs.auto_scale.down = expand_fields(
-                ecs_down_fields, ecs_down_config, 'EcsAutoScalerDownConfiguration')
+                ecs_down_fields, ecs_down_config,
+                'EcsAutoScalerDownConfiguration')
     eg_integrations.ecs = ecs
 
 
@@ -2552,7 +2625,8 @@ def main():
         state=dict(default='present',
                    choices=['present', 'absent']),
         stateful_deallocation_should_delete_images=dict(type='bool'),
-        stateful_deallocation_should_delete_network_interfaces=dict(type='bool'),
+        stateful_deallocation_should_delete_network_interfaces=dict(
+            type='bool'),
         stateful_deallocation_should_delete_snapshots=dict(type='bool'),
         stateful_deallocation_should_delete_volumes=dict(type='bool'),
         tags=dict(type='list'),
