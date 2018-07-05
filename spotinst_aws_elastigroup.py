@@ -61,14 +61,16 @@ options:
   availability_zones:
     description:
       - availability zone configuration
-    required: true
-    supoptions:
+    suboptions:
       name:
         description: availability zone name
         type: str
       subnet_id:
         description: subnet id
         type: str
+      subnet_ids:
+        description: list of subnet ids (list of strings)
+        type: list
       placement_group_name:
         description: placement group name
         type: str
@@ -442,6 +444,10 @@ options:
         secret_key (String),
         master_host (String)
 
+  region:
+    description:
+      - (String) Only use in case you are using subnet_ids list and not availability zone list
+      
   revert_to_spot:
     description:
       - (Object) Hold settings for strategy correction - replacing On-Demand for Spot instances.;
@@ -550,7 +556,7 @@ options:
 
   subnet_ids:
     description:
-      - (List) A comma-separated list of subnet identifiers for your group
+      - (List) A String list of subnet identifiers for your group, use without availability zone list
 
   tags:
     description:
@@ -1754,6 +1760,7 @@ chef_fields = ('chef_server',
 
 az_fields = ('name',
              'subnet_id',
+             'subnet_ids',
              'placement_group_name')
 
 stateful_deallocation_fields = (
@@ -1945,8 +1952,16 @@ def expand_elastigroup(module, is_update):
     expand_compute(eg, module, is_update, do_not_update)
     # Scheduling
     expand_scheduled_tasks(eg, module)
+    # Region
+    expand_region(eg, module)
 
     return eg
+
+
+def expand_region(eg, module):
+    region = module.params.get('region')
+    if region:
+        eg.region = region
 
 
 def expand_compute(eg, module, is_update, do_not_update):
@@ -1981,10 +1996,10 @@ def expand_compute(eg, module, is_update, do_not_update):
     if on_demand_instance_type or spot_instance_types is not None:
         eg_instance_types = spotinst_sdk.aws_elastigroup.InstanceTypes()
 
-        if on_demand_instance_type is not None:
+        if spot_instance_types is not None:
             eg_instance_types.spot = spot_instance_types
 
-        if spot_instance_types is not None:
+        if on_demand_instance_type is not None:
             eg_instance_types.ondemand = on_demand_instance_type
 
         if preferred_spot_instance_types:
@@ -1997,8 +2012,10 @@ def expand_compute(eg, module, is_update, do_not_update):
     if preferred_availability_zones:
         eg_compute.preferred_availability_zones = preferred_availability_zones
 
-    eg_compute.availability_zones = expand_list(
-        availability_zones_list, az_fields, 'AvailabilityZone')
+    if availability_zones_list is not None:
+        eg_compute.availability_zones = expand_list(
+            availability_zones_list, az_fields, 'AvailabilityZone')
+
     expand_launch_spec(eg_compute, module, is_update, do_not_update)
 
     eg.compute = eg_compute
@@ -2576,7 +2593,7 @@ def main():
     fields = dict(
         account_id=dict(type='str'),
         availability_vs_cost=dict(type='str', required=True),
-        availability_zones=dict(type='list', required=True),
+        availability_zones=dict(type='list'),
         block_device_mappings=dict(type='list'),
         chef=dict(type='dict'),
         credentials_path=dict(type='path', default="~/.spotinst/credentials"),
@@ -2629,6 +2646,7 @@ def main():
             type='bool'),
         stateful_deallocation_should_delete_snapshots=dict(type='bool'),
         stateful_deallocation_should_delete_volumes=dict(type='bool'),
+        subnet_ids=dict(type='list'),
         tags=dict(type='list'),
         target=dict(type='int', required=True),
         target_group_arns=dict(type='list'),
@@ -2653,6 +2671,7 @@ def main():
         private_ips=dict(type='list'),
         preferred_spot_instance_types=dict(type='list'),
         revert_to_spot=dict(type='dict'),
+        region=dict(type='str'),
         profile=dict(type='str')
     )
 
