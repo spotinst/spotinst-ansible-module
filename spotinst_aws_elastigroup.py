@@ -1543,7 +1543,7 @@ group_id:
 
 '''
 
-version = '1.0.4'
+version = '1.0.5'
 
 HAS_SPOTINST_SDK = False
 DEFAULT_CREDENTIALS_FILE = os.path.join(
