@@ -442,7 +442,8 @@ options:
         Expects the following keys -
         access_key (String),
         secret_key (String),
-        master_host (String)
+        master_host (String),
+        version (String)
 
   region:
     description:
@@ -1750,7 +1751,8 @@ elastic_beanstalk_strategy_fields = ('action', 'should_drain_instances')
 
 rancher_fields = ('access_key',
                   'secret_key',
-                  'master_host')
+                  'master_host',
+                  'version')
 
 chef_fields = ('chef_server',
                'organization',
@@ -2122,8 +2124,7 @@ def expand_integrations(eg, module):
         integration_exists = True
 
     if rancher is not None:
-        eg_integrations.rancher = expand_fields(
-            rancher_fields, rancher, 'Rancher')
+        eg_integrations.rancher = expand_fields(rancher_fields, rancher, 'Rancher')
         integration_exists = True
 
     if chef is not None:
@@ -2459,7 +2460,6 @@ def expand_kubernetes(eg_integrations, kubernetes_config):
                 'KubernetesAutoScalerDownConfiguration')
 
     eg_integrations.kubernetes = kubernetes
-
 
 def expand_nomad(eg_integrations, nomad_config):
     nomad = expand_fields(nomad_fields, nomad_config, 'NomadConfiguration')

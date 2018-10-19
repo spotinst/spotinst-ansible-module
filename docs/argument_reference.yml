@@ -406,7 +406,8 @@ options:
         Expects the following keys -
         access_key (String),
         secret_key (String),
-        master_host (String)
+        master_host (String),
+        version (String)
 
   revert_to_spot:
     description:

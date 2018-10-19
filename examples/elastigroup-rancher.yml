@@ -1,0 +1,61 @@
+#In this basic example, we create a rancher integrated elastigroup
+
+- hosts: localhost
+  tasks:
+    - name: create elastigroup
+      spotinst_aws_elastigroup:
+        name: ansible_rancher_test_group
+        state: present
+        risk: 100
+        availability_vs_cost: balanced
+        availability_zones:
+          - name: us-west-2a
+            subnet_id: subnet-79da021e
+        image_id: ami-1178f169
+        key_pair: test-key-pair
+        max_size: 0
+        min_size: 0
+        target: 0
+        unit: instance
+        monitoring: False
+        on_demand_instance_type: m4.large
+        product: Linux/UNIX
+        tags:
+          - Name: ansible_test_group
+        security_group_ids:
+          - sg-00f39170
+        spot_instance_types:
+          - m4.xlarge
+          - m5.xlarge
+        do_not_update:
+          - image_id
+          - target
+          - user_data
+        rancher:
+          master_host: https://master.host.com
+          access_key: KEY
+          secret_key: SECRET
+          version: "2"
+        kubernetes:
+          cluster_identifier: test-cluster-id
+          api_server: 127.0.0.1
+          token: test-secret
+          integration_mode: pod
+          auto_scale:
+            is_enabled: true
+            is_auto_config: false
+            cooldown: 300
+            headroom:
+              cpu_per_unit: 100
+              memory_per_unit: 100
+              num_of_units: 100
+            labels:
+              - key: test_key
+                value: test_value
+              - key: test_key1
+                value: test_value1
+            down:
+              evaluation_periods: 3
+      register: result
+    - debug: var=result
+ 

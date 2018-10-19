@@ -23,6 +23,7 @@ An Ansible Module for creating or deleting Spotinst Elastigroups
           * [CodeDeploy](#[code-deploy](examples/elastigroup-code-deploy.yml))
           * [Route53](#[route53](examples/elastigroup-route53.yml))
           * [ElasticBeanstalk](#[elastic-beanstalk](examples/elastigroup-elastic-beanstalk.yml))
+          * [Rancher](#[rancher](examples/elastigroup-rancher.yml))
 <!--te-->
 
 ## Requirements
@@ -528,3 +529,4 @@ In this advanced example, we create an elastigroup with
 - ##### [code-deploy](examples/elastigroup-code-deploy.yml)
 - ##### [route53](examples/elastigroup-route53.yml)
 - ##### [elastic-beanstalk](examples/elastigroup-elastic-beanstalk.yml)
+- ##### [rancher](examples/elastigroup-rancher.yml)
