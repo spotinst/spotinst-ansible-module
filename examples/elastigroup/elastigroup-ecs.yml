@@ -1,22 +1,20 @@
-#Integrate and Spotinst elastigroup with Kubernetes
+#Integrate and Spotinst elastigroup with AWS's ECS
 
 - hosts: localhost
   tasks:
     - name: create elastigroup
       spotinst_aws_elastigroup:
-          name: ansible_test_group
-          state: present
+          account_id: 
+          token: 
+          name: ansible_ecs_group
+          state: absent
           risk: 100
           availability_vs_cost: balanced
           availability_zones:
-            - name: us-east-2c
-              subnet_id: subnet-123c
-            - name: us-east-2b
-              subnet_id: subnet-123b
-            - name: us-east-2a
-              subnet_id: subnet-123a
-          image_id: test-ami
-          key_pair: test-key-pair
+            - name: us-west-2b
+              subnet_id: subnet-1ba25052
+          image_id: ami-f173cc91
+          key_pair: Noam-key
           max_size: 2
           min_size: 0
           target: 0
@@ -24,13 +22,8 @@
           monitoring: False
           on_demand_instance_type: m4.large
           product: Linux/UNIX
-          user_data: IyEvdXNyL2Jpbi9lbnYgYmFzaA==
-          shutdown_script: IyEvdXNyL2Jpbi9lbnYgYmFzaA==
-          kubernetes:
-            cluster_identifier: test-cluster-id
-            api-server: 127.0.0.1
-            token: test-secret
-            integration_mode: pod
+          ecs:
+            cluster_name: test-cluster-name
             auto_scale:
               is_enabled: true
               is_auto_config: false
@@ -39,13 +32,13 @@
                 cpu_per_unit: 100
                 memory_per_unit: 100
                 num_of_units: 100
-              labels:
+              attributes:
                 - key: test_key
                   value: test_value
                 - key: test_key1
                   value: test_value1
               down:
-                evaluation_periods: 3
+            evaluation_periods: 3
           tags:
             - Name: ansible_test_group
             - Environment: dev

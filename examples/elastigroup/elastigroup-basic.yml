@@ -1,4 +1,4 @@
-#Integrate and connect your instances AWS's ELB and ALB along with Spotinst's MLB
+#In this basic example, we create a simple elastigroup
 
 - hosts: localhost
   tasks:
@@ -11,10 +11,6 @@
           availability_zones:
             - name: us-east-2c
               subnet_id: subnet-123c
-            - name: us-east-2b
-              subnet_id: subnet-123b
-            - name: us-east-2a
-              subnet_id: subnet-123a
           image_id: test-ami
           key_pair: test-key-pair
           max_size: 2
@@ -24,20 +20,8 @@
           monitoring: False
           on_demand_instance_type: m4.large
           product: Linux/UNIX
-          user_data: IyEvdXNyL2Jpbi9lbnYgYmFzaA==
-          shutdown_script: IyEvdXNyL2Jpbi9lbnYgYmFzaA==
-          load_balancers:
-            - test_classic_elb
-          target_group_arns:
-            - "arn:aws:elasticloadbalancing:us-west-2:922761411234:targetgroup/TestTargetGroup/123abc"
-          mlb_load_balancers:
-            - target_set_id: "ts-123456789"
-              balancer_id: "lb-123456789"
-              auto_weight: true
-              az_awareness: false
           tags:
             - Name: ansible_test_group
-            - Environment: dev
           security_group_ids:
             - sg-default
           spot_instance_types:

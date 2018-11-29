@@ -1,18 +1,20 @@
-#In this basic example, we create a simple elastigroup
+#In this basic example, we create a simple elastigroup wit beanstalk integration
 
 - hosts: localhost
   tasks:
     - name: create elastigroup
       spotinst_aws_elastigroup:
-          name: ansible_test_group
+          account_id: 
+          token: 
+          name: ansible_test_beanstalk_group
           state: present
           risk: 100
           availability_vs_cost: balanced
           availability_zones:
-            - name: us-east-2c
-              subnet_id: subnet-123c
-          image_id: test-ami
-          key_pair: test-key-pair
+            - name: us-west-2b
+              subnet_id: subnet-1ba25052
+          image_id: ami-f173cc91
+          key_pair: Noam-key
           max_size: 2
           min_size: 0
           target: 0
@@ -20,8 +22,13 @@
           monitoring: False
           on_demand_instance_type: m4.large
           product: Linux/UNIX
-          tags:
-            - Name: ansible_test_group
+          elastic_beanstalk:
+            environment_id: e-3tkmbj7hzc
+            managed_actions:
+              platform_update:
+                perform_at: timeWindow
+                time_window: Sun:01:00-Sun:02:00
+                update_level: minorAndPatch
           security_group_ids:
             - sg-default
           spot_instance_types:

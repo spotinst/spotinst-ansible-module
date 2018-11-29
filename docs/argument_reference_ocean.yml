@@ -1,0 +1,74 @@
+options:
+  credentials_path:
+    description:
+      - (String) Optional parameter that allows to set a non-default credentials path.
+      Default is ~/.spotinst/credentials
+    required: false
+  
+  account_id:
+    description:
+      - (String) Optional parameter that allows to set an account-id inside the module configuration
+      Bydefault  this is retrieved from the credentials path
+    required: false
+  
+  token:
+    description:
+      - (String) Optional parameter that allows to set an token inside the module configuration
+      By default this is retrieved from the credentials path
+    required: false
+  
+  state:
+    choices:
+      - present
+      - absent
+    description:
+      - (String) If set to present will either create or update, if absent will delete
+    required: false
+  
+  uniqueness_by:
+    choices:
+      - id
+      - name
+    description:
+      - (String) If set to id an id must be provided, if name no id is needed
+    required: false
+  
+  name:
+    description:
+      - (String) Name for Ocean cluster
+    required: true
+  
+  region: 
+    description:
+      - (String) Region to deploy Ocean cluster
+    required: true
+
+  controller_cluster_id:
+    description:
+      - (String) This ID must be unique for each Ocean cluster per account
+    required: true
+  
+  region:
+    description:
+      - (String) Region to deploy Ocean cluster instance Groups
+    required: true
+
+  auto_scaler:
+    description:
+      - (Dict) Schema containing info on how auto scaler will function
+    required: true
+
+  capacity:
+    description:
+      - (Dict) Schema containing target, min, and max
+    required: true
+
+  strategy:
+    description:
+      - (Dict) Schema containing how to run the cluster
+    required: true
+
+  compute:
+    description:
+      - (Dict) Schema containing info on the type of compute resources to use
+    required: true

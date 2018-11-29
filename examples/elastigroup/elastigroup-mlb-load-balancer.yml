@@ -1,0 +1,49 @@
+#Integrate and connect your instancesAWS's ELB and ALB along with Spotinst's MLB
+
+- hosts: localhost
+  tasks:
+    - name: create elastigroup
+      spotinst_aws_elastigroup:
+          account_id: 
+          token: 
+          name: ansible_mlb_lb_test_group
+          state: absent
+          risk: 100
+          availability_vs_cost: balanced
+          availability_zones:
+            - name: us-west-2b
+              subnet_id: subnet-1ba25052
+          image_id: ami-f173cc91
+          key_pair: Noam-key
+          max_size: 2
+          min_size: 0
+          target: 0
+          unit: instance
+          monitoring: False
+          on_demand_instance_type: m4.large
+          product: Linux/UNIX
+          mlb_runtime:
+            deployment_id: dp-rm0f5b912345
+          load_balancers:
+            - test_classic_elb
+          target_group_arns:
+            - "arn:aws:elb:us-west-2:123:targetgroup/TestTargetGroup/123abc"
+          mlb_load_balancers:
+            - target_set_id: "ts-123456789"
+              balancer_id: "lb-123456789"
+              auto_weight: true
+              az_awareness: false
+          tags:
+            - Name: ansible_test_group
+            - Environment: dev
+          security_group_ids:
+            - sg-default
+          spot_instance_types:
+            - m4.xlarge
+            - m5.xlarge
+          do_not_update:
+            - image_id
+            - target
+            - user_data
+      register: result
+    - debug: var=result

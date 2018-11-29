@@ -1,0 +1,78 @@
+options:
+  credentials_path:
+    description:
+      - (String) Optional parameter that allows to set a non-default credentials path.
+      Default is ~/.spotinst/credentials
+    required: false
+  
+  account_id:
+    description:
+      - (String) Optional parameter that allows to set an account-id inside the module configuration
+      Bydefault  this is retrieved from the credentials path
+    required: false
+  
+  token:
+    description:
+      - (String) Optional parameter that allows to set an token inside the module configuration
+      By default this is retrieved from the credentials path
+    required: false
+  
+  state:
+    choices:
+      - present
+      - absent
+    description:
+      - (String) If set to present will either create or update, if absent will delete
+    required: false
+  
+  uniqueness_by:
+    choices:
+      - id
+      - name
+    description:
+      - (String) If set to id an id must be provided, if name no id is needed
+    required: false
+  
+  name:
+    description:
+      - (String) Name for EMR cluster
+    required: true
+  
+  description:
+    description:
+      - (String) Description of EMR cluster
+    required: false
+  
+  region: 
+    description:
+      - (String) Region to deploy EMR cluster instance Groups
+    required: true
+  
+  strategy:
+    choices:
+      - new
+      - clone
+      - wrap
+    description:
+      - (Dict) Choose to create new cluster, clone an existing cluster or wrap an existing cluster
+    required: true
+  
+  scheduling:
+    description:
+      - (Dict) List of Scheduled tasks to perform  
+    required: false
+  
+  scaling:
+    description:
+      - (Dict) Lists of up and down scaling policies
+    required: false
+  
+  compute:
+    description:
+      - (Dict) Schema that contains instance groups and other important resource parameters
+    required: true
+  
+  cluster:
+    description:
+      - (Dict) Schema that contains cluster parameters
+    required: false
