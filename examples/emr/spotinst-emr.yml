@@ -1,0 +1,62 @@
+#Integrate and Spotinst elastigroup with Kubernetes
+
+- hosts: localhost
+  tasks:
+    - name: create emr
+      spotinst_aws_mrscaler:
+        account_id: 
+        token: 
+        state: present
+        name: ansible_test_group
+        description: this is from ansible
+        region: us-west-2
+        strategy:
+          new:
+            release_label: emr-5.17.0
+          provisioning_timeout:
+            timeout: 15
+            timeout_action: terminate
+        compute:
+          availability_zones:
+            - name: us-west-2b
+              subnet_id: subnet-1ba25052
+          instance_groups:
+            master_group:
+              instance_types:
+                - m3.xlarge
+              target: 1
+              life_cycle: ON_DEMAND
+            core_group:
+              instance_types:
+                - m3.xlarge
+              target: 1
+              life_cycle: SPOT
+            task_group:
+              instance_types:
+                - m3.xlarge
+              capacity: 
+                minimum: 0
+                maximum: 0
+                target: 0
+              life_cycle: SPOT
+          emr_managed_master_security_group: sg-8cfb40f6
+          emr_managed_slave_security_group: sg-f2f94288
+          additional_master_security_groups: 
+            - sg-f2f94288
+          additional_slave_security_groups:
+            - sg-8cfb40f6
+          ec2_key_name: Noam-key
+          applications: 
+            - name: Ganglia
+              version: "1.0"
+            - name: Hadoop
+        cluster:
+          visible_to_all_users: true
+          termination_protected: false
+          keep_job_flow_alive_when_no_steps: true
+          log_uri: s3://sorex-job-status
+          additional_info: "{'test':'more information'}"
+          job_flow_role: EMR_EC2_DefaultRole
+          security_configuration: test-config-jeffrey
+      register: result
+    - debug: var=result

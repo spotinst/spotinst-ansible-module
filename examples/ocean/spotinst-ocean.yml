@@ -1,0 +1,49 @@
+#In this basic example, we create an ocean cluster
+
+- hosts: localhost
+  tasks:
+    - name: create ocean
+      spotinst_ocean_cloud:
+        account_id: 
+        token: 
+        state: present
+        name: ansible_test_ocean
+        region: us-west-2
+        controller_cluster_id: ocean.k8s
+        auto_scaler:
+          is_enabled: True
+          cooldown: 180
+          resource_limits:
+            max_memory_gib: 1500
+            max_vCpu: 750
+          down:
+            evaluation_periods: 3
+          headroom:
+            cpu_per_unit: 2000
+            memory_per_unit: 0
+            num_of_units: 4
+          is_auto_config: True
+        capacity:
+          minimum: 0
+          maximum: 0
+          target: 0
+        strategy:
+          utilize_reserved_instances: False
+          fallback_to_od: True
+          spot_percentage: 100
+        compute:
+          instance_types:
+            whitelist:
+              - c4.8xlarge
+          subnet_ids:
+            - subnet-1ba25052
+          launch_specification:
+            security_group_ids:
+              - sg-8cfb40f6
+            image_id: ami-1178f169
+            key_pair: Noam-key
+            tags: 
+              - tag_key: tags
+                tag_value: test
+      register: result
+    - debug: var=result
