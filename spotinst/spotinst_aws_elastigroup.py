@@ -2054,7 +2054,7 @@ def get_client(module):
         try:
             with open(credentials_path, "r") as creds:
                 for line in creds:
-                    eq_index = line.find('=')
+                    eq_index = line.find(':')
                     var_name = line[:eq_index].strip()
                     string_value = line[eq_index + 1:].strip()
                     creds_file_loaded_vars[var_name] = string_value
