@@ -33,7 +33,7 @@ An Ansible Module for creating or deleting Spotinst Elastigroups
 <!--te-->
 
 ## Requirements
-- [spotinst-sdk-python](https://github.com/spotinst/spotinst-sdk-python) >= `v1.0.44`
+- [spotinst-sdk-python](https://github.com/spotinst/spotinst-sdk-python) >= `v2.0.0`
 
 ## Installation
 If you'd like to work with this version of the module and not the supplied version that is packaged with Ansible,
