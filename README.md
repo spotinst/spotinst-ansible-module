@@ -40,7 +40,8 @@ If you'd like to work with this version of the module and not the supplied versi
 you can copy the module into your Ansible module directory. 
 ```bash
 git clone https://github.com/spotinst/spotinst-ansible-module
-cp spotinst-ansible-module/spotinst_aws_elastigroup.py /lib/ansible/modules/cloud/spotinst/spotinst_aws_elastigroup.py
+mkdir -p /root/.ansible/plugins/modules/cloud/
+cp -r spotinst-ansible-module/spotinst/ /root/.ansible/plugins/modules/cloud/
 ```
 Otherwise the module comes pre-installed with the latest [Ansible](https://github.com/ansible/ansible) release.
 
