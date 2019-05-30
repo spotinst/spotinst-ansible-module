@@ -22,7 +22,7 @@ description:
     Full documentation available at U(https://help.spotinst.com/hc/en-us/articles/115003530285-Ansible-)
 requirements:
   - python >= 2.7
-  - spotinst_sdk >= 1.0.38
+  - spotinst_sdk2 >= 2.0.0
 options:
 
   credentials_path:
@@ -1005,8 +1005,9 @@ from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.basic import env_fallback
 
 try:
-    import spotinst_sdk as spotinst
-    from spotinst_sdk import SpotinstClientException
+    import spotinst_sdk2 as spotinst
+    from spotinst_sdk2 import SpotinstSession
+    from spotinst_sdk2.client import SpotinstClientException
 
     HAS_SPOTINST_SDK = True
 
@@ -1295,7 +1296,7 @@ def handle_elastigroup(client, module):
             try:
                 roll_config = module.params.get('roll_config')
                 if roll_config:
-                    eg_roll = spotinst.aws_elastigroup.Roll(
+                    eg_roll = spotinst.models.elastigroup.aws.Roll(
                         batch_size_percentage=roll_config.get('batch_size_percentage'),
                         grace_period=roll_config.get('grace_period'),
                         health_check_type=roll_config.get('health_check_type')
@@ -1393,7 +1394,7 @@ def expand_elastigroup(module, is_update):
     do_not_update = module.params.get('do_not_update') or []
     name = module.params.get('name')
 
-    eg = spotinst.aws_elastigroup.Elastigroup()
+    eg = spotinst.models.elastigroup.aws.Elastigroup()
     description = module.params.get('description')
 
     if name is not None:
@@ -1430,7 +1431,7 @@ def expand_compute(eg, module, is_update, do_not_update):
     preferred_spot_instance_types = module.params.get(
         'preferred_spot_instance_types')
 
-    eg_compute = spotinst.aws_elastigroup.Compute()
+    eg_compute = spotinst.models.elastigroup.aws.Compute()
 
     if product is not None:
         # Only put product on group creation
@@ -1443,16 +1444,15 @@ def expand_compute(eg, module, is_update, do_not_update):
     if private_ips:
         eg_compute.private_ips = private_ips
 
-    if preferred_spot_instance_types:
-        eg_instance_types.preferred_spot = preferred_spot_instance_types
-
-    if on_demand_instance_type or spot_instance_types is not None:
-        eg_instance_types = spotinst.aws_elastigroup.InstanceTypes()
+    if on_demand_instance_type is not None or spot_instance_types is not None or preferred_spot_instance_types is not None:
+        eg_instance_types = spotinst.models.elastigroup.aws.InstanceTypes()
 
         if on_demand_instance_type is not None:
             eg_instance_types.spot = spot_instance_types
         if spot_instance_types is not None:
             eg_instance_types.ondemand = on_demand_instance_type
+        if preferred_spot_instance_types is not None:
+            eg_instance_types.preferred_spot = preferred_spot_instance_types
 
         if eg_instance_types.spot is not None or eg_instance_types.ondemand is not None:
             eg_compute.instance_types = eg_instance_types
@@ -1471,7 +1471,7 @@ def expand_ebs_volume_pool(eg_compute, ebs_volumes_list):
         eg_volumes = []
 
         for volume in ebs_volumes_list:
-            eg_volume = spotinst.aws_elastigroup.EbsVolume()
+            eg_volume = spotinst.models.elastigroup.aws.EbsVolume()
 
             if volume.get('device_name') is not None:
                 eg_volume.device_name = volume.get('device_name')
@@ -1520,7 +1520,7 @@ def expand_credit_specification(eg_launch_spec, credit_specification):
     eg_credit_specification = None
 
     if credit_specification is not None:
-        eg_credit_specification = spotinst.aws_elastigroup.CreditSpecification()
+        eg_credit_specification = spotinst.models.elastigroup.aws.CreditSpecification()
         cpu_credits = credit_specification.get('cpu_credits')
 
         if cpu_credits is not None:
@@ -1546,7 +1546,7 @@ def expand_integrations(eg, module):
 
     integration_exists = False
 
-    eg_integrations = spotinst.aws_elastigroup.ThirdPartyIntegrations()
+    eg_integrations = spotinst.models.elastigroup.aws.ThirdPartyIntegrations()
 
     if mesosphere is not None:
         eg_integrations.mesosphere = expand_fields(mesosphere_fields, mesosphere, 'Mesosphere')
@@ -1722,7 +1722,7 @@ def expand_docker_swarm(eg_integrations, docker_swarm_config):
 
 
 def expand_route53(eg_integrations, route53_config):
-    route53 = spotinst.aws_elastigroup.Route53Configuration()
+    route53 = spotinst.models.elastigroup.aws.Route53Configuration()
     domains_configuration = route53_config.get('domains', None)
 
     if domains_configuration:
@@ -1870,7 +1870,7 @@ def expand_scheduled_tasks(eg, module):
     scheduled_tasks = module.params.get('scheduled_tasks')
 
     if scheduled_tasks is not None:
-        eg_scheduling = spotinst.aws_elastigroup.Scheduling()
+        eg_scheduling = spotinst.models.elastigroup.aws.Scheduling()
 
         eg_tasks = expand_list(scheduled_tasks, scheduled_task_fields, 'ScheduledTask')
 
@@ -1881,12 +1881,12 @@ def expand_scheduled_tasks(eg, module):
 
 def expand_load_balancers(eg_launchspec, load_balancers, target_group_arns, mlb_load_balancers):
     if load_balancers is not None or target_group_arns is not None:
-        eg_load_balancers_config = spotinst.aws_elastigroup.LoadBalancersConfig()
+        eg_load_balancers_config = spotinst.models.elastigroup.aws.LoadBalancersConfig()
         eg_total_lbs = []
 
         if load_balancers is not None:
             for elb_name in load_balancers:
-                eg_elb = spotinst.aws_elastigroup.LoadBalancer()
+                eg_elb = spotinst.models.elastigroup.aws.LoadBalancer()
                 if elb_name is not None:
                     eg_elb.name = elb_name
                     eg_elb.type = 'CLASSIC'
@@ -1894,7 +1894,7 @@ def expand_load_balancers(eg_launchspec, load_balancers, target_group_arns, mlb_
 
         if target_group_arns is not None:
             for target_arn in target_group_arns:
-                eg_elb = spotinst.aws_elastigroup.LoadBalancer()
+                eg_elb = spotinst.models.elastigroup.aws.LoadBalancer()
                 if target_arn is not None:
                     eg_elb.arn = target_arn
                     eg_elb.type = 'TARGET_GROUP'
@@ -1921,7 +1921,7 @@ def expand_tags(eg_launchspec, tags):
         eg_tags = []
 
         for tag in tags:
-            eg_tag = spotinst.aws_elastigroup.Tag()
+            eg_tag = spotinst.models.elastigroup.aws.Tag()
 
             if list(tag):
                 eg_tag.tag_key = list(tag)[0]
@@ -1973,7 +1973,7 @@ def expand_scaling(eg, module):
     down_scaling_policies = module.params.get('down_scaling_policies')
     target_tracking_policies = module.params.get('target_tracking_policies')
 
-    eg_scaling = spotinst.aws_elastigroup.Scaling()
+    eg_scaling = spotinst.models.elastigroup.aws.Scaling()
 
     if up_scaling_policies is not None:
         eg_up_scaling_policies = expand_scaling_policies(up_scaling_policies)
@@ -2005,7 +2005,7 @@ def expand_list(items, fields, class_name):
 
 
 def expand_fields(fields, item, class_name):
-    class_ = getattr(spotinst.aws_elastigroup, class_name)
+    class_ = getattr(spotinst.models.elastigroup.aws, class_name)
     new_obj = class_()
 
     # Handle primitive fields
@@ -2070,10 +2070,12 @@ def get_client(module):
     if not account:
         account = creds_file_loaded_vars.get("account")
 
-    client = spotinst.SpotinstClient(auth_token=token, print_output=False)
-
     if account is not None:
-        client = spotinst.SpotinstClient(auth_token=token, account_id=account, print_output=False)
+        session = spotinst.SpotinstSession(auth_token=token, account_id=account)
+    else:
+        session = spotinst.SpotinstSession(auth_token=token)
+
+    client = session.client("elastigroup_aws")
 
     return client
 
@@ -2164,7 +2166,7 @@ def main():
     module = AnsibleModule(argument_spec=fields)
 
     if not HAS_SPOTINST_SDK:
-        module.fail_json(msg="the Spotinst SDK library is required. (pip install spotinst_sdk)")
+        module.fail_json(msg="the Spotinst SDK library is required. (pip install spotinst_sdk2)")
 
     client = get_client(module=module)
 
