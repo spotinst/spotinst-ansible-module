@@ -29,6 +29,8 @@ options:
         placement_group_name (String),
     required: true
 
+  auto_apply_tags: true
+  
   block_device_mappings:
     description:
       - (List of Objects) a list of hash/dictionaries of Block Device Mappings for elastigroup instances;
