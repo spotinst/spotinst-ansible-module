@@ -1106,7 +1106,8 @@ multai_lb_fields = ('balancer_id',
 
 persistence_fields = ('should_persist_root_device',
                       'should_persist_block_devices',
-                      'should_persist_private_ip')
+                      'should_persist_private_ip',
+                      'block_devices_mode')
 
 revert_to_spot_fields = ('perform_at',
                          'time_windows')
@@ -1231,6 +1232,7 @@ chef_fields = ('chef_server',
 
 az_fields = ('name',
              'subnet_id',
+             'subnet_ids',
              'placement_group_name')
 
 opsworks_fields = ('layer_id',)
