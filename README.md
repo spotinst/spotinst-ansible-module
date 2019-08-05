@@ -38,10 +38,12 @@ An Ansible Module for creating or deleting Spotinst Elastigroups
 ## Installation
 If you'd like to work with this version of the module and not the supplied version that is packaged with Ansible,
 you can copy the module into your Ansible module directory. 
+
+Example, assuming your Ansible module directory is at - '~/.ansible':
 ```bash
 git clone https://github.com/spotinst/spotinst-ansible-module
-mkdir -p /root/.ansible/plugins/modules/cloud/
-cp -r spotinst-ansible-module/spotinst/ /root/.ansible/plugins/modules/cloud/
+mkdir -p ~/.ansible/plugins/modules/cloud/
+cp -r spotinst-ansible-module/spotinst/ ~/.ansible/plugins/modules/cloud/
 ```
 Otherwise the module comes pre-installed with the latest [Ansible](https://github.com/ansible/ansible) release.
 
