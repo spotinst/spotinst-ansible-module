@@ -75,6 +75,7 @@ options:
         keys allowed are
         name (String),
         subnet_id (String),
+        subnet_ids(List of Strings),
         placement_group_name (String),
     required: true
 
@@ -429,7 +430,8 @@ options:
         Expects the following keys -
           should_persist_root_device (Boolean),
           should_persist_block_devices (Boolean),
-          should_persist_private_ip (Boolean)
+          should_persist_private_ip (Boolean),
+          block_devices_mode(String ('reattach', 'onLaunch'))
 
   preferred_spot_instance_types:
     version_added: 2.8
