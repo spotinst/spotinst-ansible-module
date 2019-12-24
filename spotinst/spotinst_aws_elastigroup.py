@@ -644,7 +644,7 @@ options:
         target (String),
         maximum (String),
         minimum (String)
-        shouldResumeStateful (Bool)
+        shouldResumeStateful (Bool, relevant only for scale up policy)
 
   down_scaling_policies:
     type: list
