@@ -644,7 +644,7 @@ options:
         target (String),
         maximum (String),
         minimum (String)
-
+        shouldResumeStateful (Bool)
 
   down_scaling_policies:
     type: list
@@ -1076,7 +1076,8 @@ scaling_policy_fields = ('policy_name',
                          'threshold',
                          'cooldown',
                          'unit',
-                         'operator')
+                         'operator',
+                         'shouldResumeStateful')
 
 tracking_policy_fields = ('policy_name',
                           'namespace',
