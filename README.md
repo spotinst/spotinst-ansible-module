@@ -30,16 +30,23 @@ An Ansible Module for creating or deleting Spotinst Elastigroups
         * [Create Ocean Cluster](./examples/ocean/spotinst-ocean.yml)
       * [Event Subscription](./examples/events)
         * [Create Event Subscription](./examples/events/spotinst-event-subscription.yml)
+        * [Create Event Subscription via role](./examples/events/spotinst-event-subscription-role.yml)
 <!--te-->
 
 ## Requirements
-- [spotinst-sdk-python](https://github.com/spotinst/spotinst-sdk-python) >= `v2.0.0`
+* [Requirements](./requirements.txt)
+
+    - [spotinst-sdk2](https://pypi.org/project/spotinst-sdk2/)
+
+      For more details on differences between 'spotinst-sdk' and 'spotinst-sdk2' see - [README](https://github.com/spotinst/spotinst-sdk-python/tree/v2)
+      
+    - [ansible](https://pypi.org/project/ansible/)
+    - [mock](hhttps://pypi.org/project/mock/)
 
 ## Installation
-
-### module directory
+### Module directory
 If you'd like to work with this version of the module and not the supplied version that is packaged with Ansible,
-you can copy the module into your Ansible module directory.
+you can copy the module into your Ansible module directory. 
 
 Example, assuming your Ansible module directory is at - '~/.ansible':
 ```bash
@@ -49,20 +56,21 @@ cp -r spotinst-ansible-module/spotinst/ ~/.ansible/plugins/modules/cloud/
 ```
 Otherwise the module comes pre-installed with the latest [Ansible](https://github.com/ansible/ansible) release.
 
-### role directory
+### Role directory
+You also can use this project as an Ansible role to be available in your playbook though `library/` directory. 
 
-You also can use this project as an Ansible role to be available in your playbook though `library/` directory. See how you can create as an [role](https://docs.ansible.com/ansible/latest/dev_guide/developing_locally.html#adding-a-module-locally):
-1. Clone the project, or create an git module, into your roles directory (see `roles_path=` on `ansible.cfg`):
- 1. clone in roles path `./roles`:
+- See how you can create module as an [role](https://docs.ansible.com/ansible/latest/dev_guide/developing_locally.html#adding-a-module-locally)
+
+Clone the project, or create a git module, into your roles directory (see `roles_path=` on `ansible.cfg`).
+ 1. Clone in roles path `./roles`:
 ```bash
 git clone https://github.com/spotinst/spotinst-ansible-module roles/spotinst-ansible-module
 ```
- 1. use as git module:
+ 2. Use as git module:
 ```bash
 git submodule add git@github.com:spotinst/spotinst-ansible-module.git roles/spotinst-ansible-module
 ```
-1. Use the module in your playbook. See `role` section on [playbook spotinst-event-subscription-role.yml](./examples/events/spotinst-event-subscription-role.yml)
-
+ 3. Use the module in your playbook. See `role` section on [playbook spotinst-event-subscription-role.yml](./examples/events/spotinst-event-subscription-role.yml)
 
 ## Configuring Credentials
 The mechanism in which the module looks for credentials is to search through a list of possible locations and stop as soon as it finds credentials. 
@@ -75,8 +83,8 @@ The default shared credential file location is `~/.spotinst/credentials`
 
 ```yaml
 default: #profile
-  token: $defaul_spotinst_token
-  account: $default_spotinst-account-id
+  token: $default_spotinst_token
+  account: $default_spotinst_account_id
 ```
   
   2. You can overwrite the credentials file location and the profile used as parameters `credentials_path` inside the playbook

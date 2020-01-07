@@ -643,7 +643,7 @@ options:
         min_target_capacity (String),
         target (String),
         maximum (String),
-        minimum (String)
+        minimum (String),
         shouldResumeStateful (Bool, relevant only for scale up policy)
 
   down_scaling_policies:
