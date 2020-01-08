@@ -89,10 +89,10 @@ EXAMPLES = """
     role_default: "{{ item.role_default |d(omit) }}"
     role_mapping: "{{ item.role_mapping |d(omit) }}"
   with_items:
-    - email: teste-01@mydomain.com.br
-      first_name: "test"
-      last_name: "last01"
-      password: "Password1234!"
+    - email: firstName.lastName@mydomain.com.br
+      first_name: "firstName"
+      last_name: "lastName"
+      password: "Ch@ngeME"
       role_default: "viewer"
       role_mapping: [{
           "account_id": "act-604e8730",
