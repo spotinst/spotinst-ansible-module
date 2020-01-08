@@ -1,0 +1,20 @@
+#In this basic example, we create an event subscription
+
+- hosts: localhost
+  tasks:
+    - name: create ocean
+      spotinst_event_subscription:
+        account_id: 
+        token: 
+        state: present
+        id: sis-e62dfd0f
+        resource_id: sig-992a78db
+        protocol: web
+        endpoint: https://webhook.com
+        event_type: GROUP_UPDATED
+        event_format: { "subject" : "%s", "message" : "%s" }
+      register: result
+    - debug: var=result
+  
+  roles:
+    - spotinst-ansible-modules
