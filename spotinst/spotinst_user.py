@@ -56,12 +56,12 @@ options:
   last_name:
     type: str
     description:
-      - First name
+      - Last name
 
   password:
     type: str
     description:
-      - First name
+      - Password
 
   role:
     type: str
