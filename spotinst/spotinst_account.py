@@ -1,11 +1,13 @@
 #!/usr/bin/python
-# Copyright (c) 2017 Ansible Project
+# Copyright (c) 2020 Ansible Project
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+
 from __future__ import (absolute_import, division, print_function)
 
 ANSIBLE_METADATA = {'metadata_version': '1.1',
                     'status': ['preview'],
                     'supported_by': 'community'}
+
 DOCUMENTATION = """
 ---
 module: spotinst_account
@@ -76,6 +78,7 @@ options:
       - AWS IAM Role external ID
     type: str
 """
+
 EXAMPLES = """
 
 # create Spotinst account named aws-account-01
@@ -104,6 +107,7 @@ EXAMPLES = """
       state: absent
 
 """
+
 RETURN = """
 ---
 result:
@@ -118,8 +122,10 @@ __metaclass__ = type
 
 import os
 import time
+import json
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.basic import env_fallback
+from ansible.module_utils.urls import open_url
 
 try:
     import spotinst_sdk as spotinst
@@ -131,38 +137,164 @@ except ImportError:
     pass
 
 
-def get_client(module):
+
+## START - SHARED MODULES
+
+def get_ExceptionMessage(e):
+    errmsg, payload = e.message.split('\n')
+    return {
+      "err": errmsg,
+      "payload": json.loads(payload)
+    }
+
+
+def get_ExceptionErrorCode(err):
+  errCode = "Unknown"
+  try:
+    for e in err["payload"]["errors"]:
+      return e["code"]
+  except:
+    pass
+  return errCode
+
+
+def retErrMessage(message, debugErr=None):
+  """Create the error message """
+  e = {
+    "err": True,
+    "errMsg": message
+  }
+  if debugErr:
+    e["errDebug"] = debugErr
+  return e
+
+
+def getConfigCredentials(credentials_path=None):
     # Retrieve creds file variables
     creds_file_loaded_vars = dict()
-
-    credentials_path = module.params.get('credentials_path')
-
     if credentials_path is not None:
         try:
             with open(credentials_path, "r") as creds:
                 for line in creds:
                     eq_index = line.find('=')
                     var_name = line[:eq_index].strip()
-                    string_value = line[eq_index + 1:].strip()
-                    creds_file_loaded_vars[var_name] = string_value
+                    var_value = line[eq_index + 1:].strip()
+                    creds_file_loaded_vars[var_name] = var_value
         except IOError:
             pass
-    # End of creds file retrieval
 
-    token = module.params.get('token')
-    if not token:
-        token = creds_file_loaded_vars.get("token")
+    return creds_file_loaded_vars
 
-    account = module.params.get('account_id')
+
+def getOAuthTokenFromVar():
+    """ TODO """
+    return
+
+
+def requestOAuthToken():
+    """
+    Generate a new bearer token and return it.
+    """
+    sp_username = os.getenv("SPOTINST_USER")
+    sp_password = os.getenv("SPOTINST_PASSWORD")
+    sp_client_id = os.getenv("SPOTINST_CLIENT_ID")
+    sp_client_sec = os.getenv("SPOTINST_CLIENT_SECRET")
+
+    if (not sp_username) or (not sp_password):
+      return {
+        "err": True,
+        "errMsg": "SPOTINST_USER or SPOTINST_PASSWORD env var not found"
+      }
+    if (not sp_client_id) or (not sp_client_sec):
+      return {
+        "err": True,
+        "errMsg": "SPOTINST_CLIENT_ID or SPOTINST_CLIENT_SECRET env var not found"
+      }
+
+    headers = {
+      "Content-Type": "application/x-www-form-urlencoded"
+    }
+    payload = "username={}&password={}&grant_type=password&client_id={}&client_secret={}".format(
+      sp_username, sp_password, sp_client_id, sp_client_sec
+    )
+    authURL = "https://oauth.spotinst.io/token"
+
+    try:
+      resp = open_url(authURL, method="POST", data=payload, headers=headers)
+    except Exception as e:
+      return retErrMessage("Unable to open request to retrieve token", debugErr=e)
+
+    try:
+      respJS = json.loads(resp.read())
+      if "response" not in respJS:
+        return retErrMessage("Unable to get response payload", debugErr=e)
+      try:
+        accessToken = respJS["response"]["items"][0]["accessToken"]
+      except Exception as e:
+        return retErrMessage("Unable to get access token", debugErr=e)
+
+      return accessToken
+
+    except Exception as e:
+      return retErrMessage("Unable to parse token response", debugErr=e)
+
+    return None
+
+
+def getOAuthUserToken():
+    """
+    - [TODO] Get local TOKEN (already generated), if not found, then
+    - Generate a new token from user and pass
+
+    """
+
+    sp_user_token = os.getenv("SPOTINST_USER_TOKEN")
+    sp_user_token_ttl = os.getenv("SPOTINST_USER_TOKEN_TTL")
+    if not sp_user_token:
+      return requestOAuthToken()
+
+    return retErrMessage("Unavailable option to get current token", debugErr=e)
+
+
+def get_client(module, account=None):
+    """
+    Credentials order (first is higher):
+    - module argument
+    - token env vars (TODO)
+    - user and pass credentials to request a new token
+    - credentials file
+    """
+
+    # Token
+    try:
+      token = module.params.get('token')
+      if not token:
+          token = getOAuthUserToken()
+          if not token:
+              # Retrieve creds file variables
+              creds_file_loaded_vars = getConfigCredentials(
+                credentials_path=module.params.get('credentials_path')
+              )
+              token = creds_file_loaded_vars.get("token")
+    except Exception as e:
+      module.fail_json(msg="ERROR: {}".format(e))
+
+    # account
     if not account:
-        account = creds_file_loaded_vars.get("account")
+      account = module.params.get('account_id')
+    if account:
+      return spotinst.SpotinstClient(
+          auth_token=token,
+          account_id=account,
+          print_output=True,
+        )
 
-    client = spotinst.SpotinstClient(auth_token=token, print_output=False)
+    return spotinst.SpotinstClient(
+        auth_token=token,
+        print_output=True,
+      )
 
-    if account is not None:
-        client = spotinst.SpotinstClient(auth_token=token, account_id=account, print_output=False)
-
-    return client
+## END - SHARED MODULES
 
 
 def find_account(client, name):
@@ -190,32 +322,53 @@ def handle_create(client, module):
     account_name = module.params.get('name')
     cloud = module.params.get('cloud')
     allow_dup = module.params.get('allow_duplicates')
+    message = "Account"
+    has_changed = True
 
+    # create if not exists
     ac_check = find_account(client, account_name)
-    if len(ac_check) > 0:
-      message = "Account(s) Already exists"
+    if len(ac_check) <= 0:
+      try:
+        account = client.create_account(account_name=account_name)
+        message = 'Created Account'
+      except Exception as e:
+        module.fail_json(msg="ERROR handle_create() {} ".format(e))
+    elif len(ac_check) > 1:
+      message = 'More than one account found with same name, exiting'
       return ac_check, message, False
-
-    account = client.create_account(account_name=account_name)
-    message = 'Created Account successfully'
+    else:
+      account = ac_check[0]
 
     if account and cloud == 'aws':
       try:
         iam_role = module.params.get('aws_iam_role')
         external_id = module.params.get('aws_external_id')
+
         ac_check = find_account(client, account_name)
-        ac_id = ac_check[0]["account_id"]
+        if len(ac_check) <= 0:
+            message = 'Account not found to setup External Cloud Provider'
+            module.fail_json(msg=message)
+
+        # check if it's already setup
+        account = ac_check[0]
+        if account["provider_external_id"] is not None:
+          message += ' Cloud Provider is already updated'
+          has_changed = False
+          return account, message, has_changed
+
+        # create new client to setup the account
+        ## SDK (#62) does not support setup account with global tokens,
+        ## so forcing to switch account on current client session.
+        client.account_id = account["account_id"]
 
         resp = client.set_cloud_credentials(
-            account_id=ac_id,
             iam_role=iam_role,
             external_id=external_id,
         )
-        message += ' and Cloud {} Setup'.format(cloud)
+        message += ' and Cloud {} Setup successfully'.format(cloud)
       except Exception as e:
         module.fail_json(msg=e)
 
-    has_changed = True
     return account, message, has_changed
 
 
