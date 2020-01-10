@@ -10,10 +10,10 @@ DOCUMENTATION = """
 ---
 module: spotinst_event_subscription
 version_added: 2.8
-short_description: Create, update or delete Spotinst Ocean
+short_description: Create event subscription for resource
 author: Spotinst (@jeffnoehren)
 description:
-  - Can create, update, or delete Spotinst Ocean
+  - Can create event subscription for resource
     You will have to have a credentials file in this location - <home>/.spotinst/credentials
     The credentials file must contain a row that looks like this
     token = <YOUR TOKEN>
@@ -82,7 +82,7 @@ EXAMPLES = """
 
 - hosts: localhost
   tasks:
-    - name: create ocean
+    - name: create event subscription
       spotinst_event_subscription:
         account_id:
         token:
