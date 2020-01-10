@@ -140,7 +140,7 @@ except ImportError:
     pass
 
 
-## START SHARED IN MODULES
+## START - SHARED MODULES
 
 def get_ExceptionMessage(e):
     errmsg, payload = e.message.split('\n')
@@ -168,6 +168,27 @@ def retErrMessage(message, debugErr=None):
   }
   if debugErr:
     e["errDebug"] = debugErr
+  return e
+
+
+def retErrMessageClient(message, debugErr=None):
+  """Create the error message """
+  e = {
+    "err": True,
+    "errMsg": message
+  }
+
+  if debugErr:
+    errMsg = get_ExceptionMessage(debugErr)
+    errors = []
+    try:
+      for er in errMsg["payload"]["errors"]:
+        errors.append(er["message"])
+      e["errDebug"] = errors
+    except Exception as err:
+      errors.append(debugErr)
+      errors.append(err)
+    e["errDebug"] = errors
   return e
 
 
@@ -258,7 +279,7 @@ def getOAuthUserToken():
     return retErrMessage("Unavailable option to get current token", debugErr=e)
 
 
-def get_client(module):
+def get_client(module, account=None):
     """
     Credentials order (first is higher):
     - module argument
@@ -266,9 +287,11 @@ def get_client(module):
     - user and pass credentials to request a new token
     - credentials file
     """
+
+    # Token
     try:
       token = module.params.get('token')
-      if (not token):
+      if not token:
           token = getOAuthUserToken()
           if not token:
               # Retrieve creds file variables
@@ -279,16 +302,23 @@ def get_client(module):
     except Exception as e:
       module.fail_json(msg="ERROR: {}".format(e))
 
-    account = module.params.get('account_id')
-    client = spotinst.SpotinstClient(
+    # account
+    if not account:
+      account = module.params.get('account_id')
+    if account:
+      return spotinst.SpotinstClient(
+          auth_token=token,
+          account_id=account,
+          print_output=True,
+        )
+
+    return spotinst.SpotinstClient(
         auth_token=token,
-        account_id=account,
         print_output=True,
       )
 
-    return client
+## END - SHARED MODULES
 
-## END SHARED
 
 ## Handlers
 def handle_user(client, module):
@@ -352,15 +382,11 @@ def handle_delete(client, module):
     has_changed = False
 
     try:
-      found, user = find_user(client, module)
+      found, userMapping = find_user(client, module)
       if found:
-        resp, message, has_changed = delete_user(client, module)
-        if resp["code"] == 200:
-          message = 'User Removed successfully'
+        resp, message, has_changed = delete_user(client, module, userMapping)
       else:
         message = 'User {} Not Found'.format(user)
-        has_changed = False
-
 
     except Exception as e:
       module.fail_json(msg="Error getting Spotinst User mapping: {}".format(e))
@@ -413,22 +439,44 @@ def create_user(client, module):
     return resp, message, has_changed
 
 
-def delete_user(client, module):
+def delete_user(client, module, userMapping):
 
     email = module.params.get('email')
+    acc_id = module.params.get('account_id')
     has_changed = True
 
+    # detach from all accounts
+    if not acc_id:
+      try:
+        if len(userMapping) == 0:
+          return {"code": 404}, "No mapping for user", False
+        retMsg = {
+          "state": "absent",
+          "mappings": []
+        }
+        for m in userMapping:
+          client.account_id = m["account_id"]
+          resp = client.detach_user(email)
+          retMsg["mappings"].append(m)
+        return {"code": 200}, retMsg, True
+
+      except Exception as e:
+        module.fail_json(msg="ERR detach all: {}".format(e))
+
+    # detach from current session account
     try:
       resp = client.detach_user(email)
 
       message = "User Detached successfully"
 
     except spotinst.SpotinstClientException as e:
-      errMsg = get_ExceptionMessage(e)
-      errors = []
-      for er in errMsg["payload"]["errors"]:
-        errors.append(er["message"])
-      module.fail_json(msg="{}: {}".format(errMsg["err"], errors))
+      err = retErrMessageClient(
+        message="Error Detaching user.",
+        debugErr=e
+      )
+      module.fail_json(msg="{}: {}".format(
+          err["errMsg"], err["errDebug"])
+        )
 
     except Exception as e:
       module.fail_json(msg="Error Creating User: {}".format(e))
