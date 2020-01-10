@@ -348,12 +348,12 @@ def handle_create(client, module):
         # if resp["code"] == 200:
         message = 'User Created successfully'
 
-        resp, message, has_changed = mapping_user(client, module, message, has_changed)
+        resp, message, has_changed = mapping_user(client, module, message=message, has_changed=has_changed)
         #if resp["code"] == 200:
         message = 'User Created successfully'
 
       else:
-        resp, message, has_changed = update_user_mapping(client, module)
+        resp, message, has_changed = mapping_user(client, module)
         # if resp["code"] == 200:
         message = 'User Updated successfully'
 
@@ -415,6 +415,7 @@ def find_user(client, module):
 
 
 def create_user(client, module):
+
     first_name = module.params.get('first_name')
     last_name = module.params.get('last_name')
     email = module.params.get('email')
@@ -484,62 +485,37 @@ def delete_user(client, module, userMapping):
     return resp, message, has_changed
 
 
-def mapping_user(client, module, message, has_changed):
+def mapping_user(client, module, message="", has_changed=False):
+    """ Map User roles """
+    def checkUserIsMapped(curMapping, accMap):
+      """ Check if user is already mapped """
+      for m in  curMapping:
+        if (accMap["account_id"] == m["account_id"]) and \
+          (accMap["role"] == m["role"]):
+          return True
+      return False
+
     role_mapping = module.params.get('role_mapping')
     email = module.params.get('email')
+    resp = {}
+
     try:
-      accountUserMapping = []
+      setupUserMapping = []
+      found, curUserMapping = find_user(client, module)
       for m in role_mapping:
-        accountUserMapping.append({
+        if checkUserIsMapped(curUserMapping, m):
+          continue
+        setupUserMapping.append({
           "userEmail": email,
           "accountId": m["account_id"],
           "role": m["role"]
         })
 
-      resp = client.assign_user_to_account(accountUserMapping)
+      if len(setupUserMapping) > 0:
+        has_changed = True
+        resp = client.assign_user_to_account(setupUserMapping)
     except Exception as e:
       module.fail_json(msg="Error Mapping User: {}".format(e))
-
-    return resp, message, has_changed
-
-
-def update_user_mapping(client, module):
-    """
-    Steps TODO:
-    - Get User
-    - Compare user mapping in the ver
-    - Check if has changes
-    - send to mapping_user user ensure that all maps
-
-    Problem using 'update_user_role':
-    - if the user is not in the Account, it will fail (It could be an bug).
-    ERROR:
-      Error encountered while updating user:
-      [u'There is no mapping with user teste-01@domain.com and account act-XID.']
-    """
-    role_mapping = module.params.get('role_mapping')
-    email = module.params.get('email')
-    message = "Update User mapping is not supported"
-    resp = {}
-    has_changed = False
-
-    try:
-      for m in role_mapping:
-        client.account_id = m["account_id"]
-        resp = client.update_user_role(email, m["role"])
-        has_changed = True
-        message = 'User Mapping Updated Successful'
-
-    except spotinst.SpotinstClientException as e:
-      errMsg = get_ExceptionMessage(e)
-      errors = []
-      for er in errMsg["payload"]["errors"]:
-        errors.append(er["message"])
-
-      pass
-
-    except Exception as e:
-      module.fail_json(msg="Error Updating User Map: {}".format(e))
 
     return resp, message, has_changed
 
