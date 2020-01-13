@@ -2,7 +2,7 @@
 
 - hosts: localhost
   tasks:
-    - name: create ocean
+    - name: create event subscription
       spotinst_event_subscription:
         account_id: 
         token: 

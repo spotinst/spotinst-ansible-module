@@ -1,8 +1,8 @@
-#Integrate and Spotinst elastigroup with Kubernetes
+#Integrate and Spotinst elastigroup with EMR Cluster
 
 - hosts: localhost
   tasks:
-    - name: create emr
+    - name: create emr mr scaler
       spotinst_aws_mrscaler:
         account_id: 
         token: 

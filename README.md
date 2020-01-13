@@ -41,7 +41,7 @@ An Ansible Module for creating or deleting Spotinst Elastigroups
       For more details on differences between 'spotinst-sdk' and 'spotinst-sdk2' see - [README](https://github.com/spotinst/spotinst-sdk-python/tree/v2)
       
     - [ansible](https://pypi.org/project/ansible/)
-    - [mock](hhttps://pypi.org/project/mock/)
+    - [mock](https://pypi.org/project/mock/)
 
 ## Installation
 ### Module directory
