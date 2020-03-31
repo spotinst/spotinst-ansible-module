@@ -104,6 +104,11 @@ default: #profile
   3. You can overwrite the credentials file location used as environment variables `SPOTINST_PROFILE` and/or `SPOTINST_SHARED_CREDENTIALS_FILE`
 
 ## Usage
+In order to use this as standalone, you first need to install [ansible](https://pypi.org/project/ansible/)
+```bash
+pip install ansible
+```
+and then you will be able to execute playbooks
 ```bash
 ansible-playbook elastigroup-basic.yml
 ```
