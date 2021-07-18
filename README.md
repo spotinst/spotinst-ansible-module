@@ -31,6 +31,9 @@ An Ansible Module for creating or deleting Spotinst Elastigroups
       * [Event Subscription](./examples/events)
         * [Create Event Subscription](./examples/events/spotinst-event-subscription.yml)
         * [Create Event Subscription via role](./examples/events/spotinst-event-subscription-role.yml)
+      * [Managed Instance](./examples/managed_instance)
+        * [Create Managed Instance](./examples/managed_instance/managed-instance-basic.yaml)
+        * [Update Managed Instance And/Or Perform Action](examples/managed_instance/managed-instance-with-action.yaml)
 <!--te-->
 
 ## Requirements

@@ -1,0 +1,45 @@
+- hosts: localhost
+  tasks:
+    - name: managed instance
+      spotinst_aws_managed_instance:
+        state: present
+        action: pause # resume, recycle <------ if you would just like to perform an action, leave all other fields as is and include this line.
+        do_not_update:
+          - compute.product
+        managed_instance:
+          name: ansible-managed-instance-example
+          description: a nice Managed Instance created via Ansible
+          region: us-west-2
+          persistence:
+            persist_block_devices: true
+            persist_root_device: true
+            block_devices_mode: "onLaunch"
+          strategy:
+            life_cycle: "spot"
+            revert_to_spot:
+              perform_at: "always"
+          health_check:
+            type: "EC2"
+            grace_period: 120
+            unhealthy_duration: 120
+          compute:
+            product: "Linux/UNIX"
+            launch_specification:
+              image_id: "ami-082b5a644766e0e6f"
+              instance_types:
+                types: [ "t2.micro", "t3.small", "t3.micro" ]
+                preferred_type: "t2.micro"
+              key_pair: "my-keypair"
+              security_group_ids:
+                - "sg-XXXXXX"
+            subnet_ids:
+              - "subnet-XXXXX"
+            vpc_id: "vpc-XXXX"
+          scheduling:
+            tasks:
+              - is_enabled: true
+                frequency: "weekly"
+                start_time: "2050-22-22T00:00:00Z"
+                task_type: "pause"
+      register: result
+    - debug: var=result
