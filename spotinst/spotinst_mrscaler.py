@@ -857,20 +857,15 @@ def get_request_type_and_id(client, module):
     else:
         clusters = client.get_all_emr()
         should_create, emr_id = find_clusters_with_same_name(clusters=clusters, name=name)
-
-    if should_create is True:
-        if state == 'present':
-            request_type = "create"
-
-        elif state == 'absent':
-            request_type = None
-
+    
+    if state == 'present':
+        request_type = "create"
+    elif should_create and state == 'update':
+        request_type = "update"
+    elif should_create and state == 'absent':
+        request_type = "delete"
     else:
-        if state == 'present':
-            request_type = "update"
-
-        elif state == 'absent':
-            request_type = "delete"
+        raise Exception('invalid state, please set state either one of: (present, update, absent)')
 
     return request_type, emr_id
 
