@@ -355,7 +355,7 @@ def expand_compute(emr, compute, is_update, do_not_update):
             expand_steps(emr_compute=emr_compute, steps=steps)
 
         if configurations is not None:
-            expand_configurations(emr_compute=emr_compute, configurations=configurations)
+            expand_configurations(schema=emr_compute, configurations=configurations)
 
         if emr_managed_master_security_group is not None:
             emr_compute.emr_managed_master_security_group = emr_managed_master_security_group
@@ -563,12 +563,12 @@ def expand_capacity(schema, capacity):
 
 def expand_configurations(schema, configurations):
     emr_configurations = spotinst.spotinst_emr.Configurations()
-    file = schema.get('file')
+    file = configurations.get('file')
 
     if file is not None:
         expand_file(schema=emr_configurations, file=file)
 
-    emr_configurations.configurations = emr_configurations
+    schema.configurations = emr_configurations
 
 
 def expand_applications(emr_compute, applications):
@@ -704,7 +704,6 @@ def expand_scaling(emr, scaling):
 
     up = scaling.get('up')
     down = scaling.get('down')
-
     if up is not None:
         expand_metrics(emr_scaling=emr_scaling, metrics=up, direction="up")
     if down is not None:
@@ -733,40 +732,40 @@ def expand_metrics(emr_scaling, metrics, direction):
         operator = single_metric.get('operator')
 
         if metric_name is not None:
-            emr_metric.metric_name
+            emr_metric.metric_name = metric_name
 
         if statistic is not None:
-            emr_metric.statistic
+            emr_metric.statistic = statistic
 
         if unit is not None:
-            emr_metric.unit
+            emr_metric.unit = unit
 
         if threshold is not None:
-            emr_metric.threshold
+            emr_metric.threshold = threshold
 
         if adjustment is not None:
-            emr_metric.adjustment
+            emr_metric.adjustment = adjustment
 
         if namespace is not None:
-            emr_metric.namespace
+            emr_metric.namespace = namespace
 
         if period is not None:
-            emr_metric.period
+            emr_metric.period = period
 
         if evaluation_periods is not None:
-            emr_metric.evaluation_periods
+            emr_metric.evaluation_periods = evaluation_periods
 
         if action is not None:
             expand_action(emr_metric=emr_metric, action=action)
 
         if cooldown is not None:
-            emr_metric.cooldown
+            emr_metric.cooldown = cooldown
 
         if dimensions is not None:
             expand_dimensions(emr_metric=emr_metric, dimensions=dimensions)
 
         if operator is not None:
-            emr_metric.operator
+            emr_metric.operator = operator
 
         metric_list.append(emr_metric)
 
@@ -858,20 +857,15 @@ def get_request_type_and_id(client, module):
     else:
         clusters = client.get_all_emr()
         should_create, emr_id = find_clusters_with_same_name(clusters=clusters, name=name)
-
-    if should_create is True:
-        if state == 'present':
-            request_type = "create"
-
-        elif state == 'absent':
-            request_type = None
-
+    
+    if state == 'present':
+        request_type = "create"
+    elif should_create and state == 'update':
+        request_type = "update"
+    elif should_create and state == 'absent':
+        request_type = "delete"
     else:
-        if state == 'present':
-            request_type = "update"
-
-        elif state == 'absent':
-            request_type = "delete"
+        raise Exception('invalid state, please set state either one of: (present, update, absent)')
 
     return request_type, emr_id
 
@@ -983,3 +977,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+
